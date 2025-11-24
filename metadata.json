@@ -1,0 +1,7 @@
+{
+  "name": "HomeSync+ Smart Home Assistant",
+  "description": "An intelligent home assistant to help organize your home, manage finances, plan meals, and streamline your routine, all through a friendly chat interface.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
