@@ -48,7 +48,7 @@
 3. **Configure a API Key:**
    Crie um arquivo `.env` na raiz do projeto e adicione sua chave do Google AI Studio:
    ```env
-   VITE_API_KEY=sua_chave_aqui_AIzaSy...
+   API_KEY=sua_chave_aqui_AIzaSy...
    ```
    *(Nota: Se estiver rodando no Google AI Studio, a chave é injetada automaticamente)*
 

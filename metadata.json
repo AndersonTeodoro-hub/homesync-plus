@@ -1,6 +1,6 @@
 {
-  "name": "HomeSync+ Smart Home Assistant",
-  "description": "An intelligent home assistant to help organize your home, manage finances, plan meals, and streamline your routine, all through a friendly chat interface.",
+  "name": "HomeSync+ Assistente Doméstico",
+  "description": "Um assistente doméstico inteligente para ajudar a organizar sua casa, gerenciar finanças, planejar refeições e otimizar sua rotina, tudo através de uma interface de chat amigável.",
   "requestFramePermissions": [
     "microphone"
   ]
