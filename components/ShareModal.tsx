@@ -71,10 +71,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, qrDataU
             </button>
         </div>
 
-        <p className="text-[10px] text-white/40 text-center leading-tight mt-2">
-          Nota: Se estiver em modo de pré-visualização, este link pode expirar ou exigir login. Para um link público permanente, utilize a opção "Publish" na plataforma.
-        </p>
-
         <button
           onClick={onClose}
           className="mt-6 w-full py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition-colors border border-white/5"

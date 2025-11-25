@@ -71,6 +71,14 @@ export const Home: React.FC<HomeProps> = ({
             <div className="absolute inset-0 bg-gradient-to-b from-[#111625] to-[#020202] pointer-events-none" />
             <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-900/10 blur-[150px] rounded-full pointer-events-none" />
             
+            {/* Beta Badge */}
+            <div className="absolute top-4 right-4 z-20">
+                <span className="bg-amber-500/10 backdrop-blur-md border border-amber-500/30 text-xs font-bold px-3 py-1 rounded-full text-amber-300 shadow-lg flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    ACESSO BETA VIP
+                </span>
+            </div>
+            
             {/* Header */}
             <header className="relative z-10 pt-12 pb-2 text-center">
                 <h1 className="text-3xl font-bold tracking-tight mb-1 flex items-center justify-center gap-2 text-white">

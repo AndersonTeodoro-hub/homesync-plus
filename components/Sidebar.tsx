@@ -1,7 +1,7 @@
 import React from 'react';
 // Fix: Correctly import View type and necessary icons.
 import type { View } from '../types';
-import { HomeIcon, DashboardIcon, FinanceIcon, CheckCircleIcon, ShoppingCartIcon, InventoryIcon, TextAiIcon, HeartIcon, LearnIcon, EmergencyIcon, FamilyIcon, NutritionistIcon, PersonalTrainerIcon, ShareAppIcon } from './Icons';
+import { HomeIcon, DashboardIcon, FinanceIcon, CheckCircleIcon, ShoppingCartIcon, InventoryIcon, TextAiIcon, HeartIcon, LearnIcon, EmergencyIcon, FamilyIcon, NutritionistIcon, PersonalTrainerIcon, ShareAppIcon, MessageIcon } from './Icons';
 
 interface SidebarProps {
   activeView: View;
@@ -72,15 +72,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setView, onShareAp
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-200 mt-auto">
-        <div className="flex items-center justify-between">
+      <div className="p-4 border-t border-gray-200 mt-auto space-y-4">
+        {/* Feedback Button for Beta Testers - Highlighted */}
+        <a 
+            href="mailto:anderson.teodoro@gmail.com?subject=Feedback Async+ Beta"
+            className="flex items-center justify-center space-x-2 w-full p-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors border border-amber-200 text-sm font-semibold shadow-sm"
+        >
+            <MessageIcon />
+            <span>Enviar Feedback Beta</span>
+        </a>
+
+        <div className="flex items-center justify-between pt-2">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold">
                 A
               </div>
               <div>
-                <p className="font-semibold text-sm text-gray-800">Anderson Teodoro</p>
-                <p className="text-xs text-gray-500">anderson.teodoro@gmail.com</p>
+                <p className="font-semibold text-sm text-gray-800">Anderson T.</p>
+                <p className="text-xs text-green-600 font-medium">● Online</p>
               </div>
             </div>
             <button onClick={onShareApp} className="p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-colors" aria-label="Compartilhar App">
