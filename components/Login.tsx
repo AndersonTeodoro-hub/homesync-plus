@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Avatar } from './Avatar';
-import { UserIcon, LockIcon } from './Icons';
+import { UserIcon, LockIcon, AsyncLogoIcon } from './Icons';
 
 interface LoginProps {
   onLogin: (userName: string) => void;
@@ -37,15 +37,15 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         {/* Card de Login */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl w-full max-w-md relative z-10">
             
-            {/* Header / Avatar */}
+            {/* Header / Brand */}
             <div className="flex flex-col items-center mb-8">
-                <div className="w-32 h-32 mb-4">
-                    <Avatar role="model" voiceState="idle" />
-                </div>
+                {/* Nova Logo Oficial */}
+                <AsyncLogoIcon className="w-20 h-20 mb-6 drop-shadow-2xl" />
+                
                 <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
                     Async <span className="text-pink-500 font-light">+</span>
                 </h1>
-                <p className="text-slate-400 text-sm mt-1">Acesso Exclusivo Beta</p>
+                <p className="text-slate-400 text-sm mt-2 uppercase tracking-widest font-medium opacity-80">Acesso Beta VIP</p>
             </div>
 
             {/* Formulário */}
@@ -83,7 +83,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 </div>
 
                 {error && (
-                    <div className="text-red-400 text-sm text-center bg-red-500/10 py-2 rounded-lg border border-red-500/20">
+                    <div className="text-red-400 text-sm text-center bg-red-500/10 py-2 rounded-lg border border-red-500/20 animate-pulse">
                         {error}
                     </div>
                 )}

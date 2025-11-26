@@ -1,6 +1,34 @@
 
 import React from 'react';
 
+// --- LOGO OFICIAL ASYNC+ ---
+export const AsyncLogoIcon = ({ className = "h-10 w-10" }: { className?: string }) => (
+  <svg viewBox="0 0 512 512" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ec4899" /> {/* Pink 500 */}
+        <stop offset="100%" stopColor="#8b5cf6" /> {/* Violet 500 */}
+      </linearGradient>
+    </defs>
+    {/* Fundo do App Icon (arredondado) */}
+    <rect width="512" height="512" rx="128" fill="#0f172a" />
+    
+    {/* O "A" Estilizado (Alpha/Async) */}
+    <path 
+      d="M256 96 L96 416 H184 L256 272 L328 416 H416 L256 96 Z" 
+      fill="url(#logoGradient)" 
+    />
+    
+    {/* O Brilho (AI Sparkle) no topo direito */}
+    <path 
+      d="M370 130 L390 150 M370 130 L350 110 M370 130 L390 110 M370 130 L350 150" 
+      stroke="white" 
+      strokeWidth="24" 
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
 // Home screen shortcut icons
 export const MoneyIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">

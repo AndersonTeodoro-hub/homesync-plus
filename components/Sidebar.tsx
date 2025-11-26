@@ -1,7 +1,8 @@
+
 import React from 'react';
 // Fix: Correctly import View type and necessary icons.
 import type { View } from '../types';
-import { HomeIcon, DashboardIcon, FinanceIcon, CheckCircleIcon, ShoppingCartIcon, InventoryIcon, TextAiIcon, HeartIcon, LearnIcon, EmergencyIcon, FamilyIcon, NutritionistIcon, PersonalTrainerIcon, ShareAppIcon, MessageIcon } from './Icons';
+import { HomeIcon, DashboardIcon, FinanceIcon, CheckCircleIcon, ShoppingCartIcon, InventoryIcon, TextAiIcon, HeartIcon, LearnIcon, EmergencyIcon, FamilyIcon, NutritionistIcon, PersonalTrainerIcon, ShareAppIcon, MessageIcon, AsyncLogoIcon } from './Icons';
 
 interface SidebarProps {
   activeView: View;
@@ -30,13 +31,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setView, onShareAp
   return (
     <aside className="w-64 flex-shrink-0 bg-white flex flex-col h-screen overflow-y-auto border-r border-gray-200">
       <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-            A+
-          </div>
+        <div className="flex items-center space-x-3">
+          <AsyncLogoIcon className="w-10 h-10 shadow-md rounded-xl" />
           <div>
-            <h1 className="font-bold text-lg text-gray-800">Async+</h1>
-            <p className="text-xs text-gray-500">Gestão Familiar Inteligente</p>
+            <h1 className="font-bold text-lg text-gray-800 tracking-tight">Async<span className="text-violet-600">+</span></h1>
+            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">Gestão Inteligente</p>
           </div>
         </div>
       </div>
@@ -84,12 +83,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setView, onShareAp
 
         <div className="flex items-center justify-between pt-2">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-sm">
                 A
               </div>
               <div>
                 <p className="font-semibold text-sm text-gray-800">Anderson T.</p>
-                <p className="text-xs text-green-600 font-medium">● Online</p>
+                <p className="text-xs text-green-600 font-medium flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Online
+                </p>
               </div>
             </div>
             <button onClick={onShareApp} className="p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-colors" aria-label="Compartilhar App">
