@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { InventoryIcon, CameraIcon, UploadIcon, TrashIcon, ChefIcon, LoadingSpinnerIcon } from './Icons';
+import { InventoryIcon, CameraIcon, UploadIcon, TrashIcon, ChefIcon, LoadingSpinnerIcon, StopIcon } from './Icons';
 
 interface InventoryItem {
   id: number;
@@ -22,12 +22,25 @@ export const Inventory: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [recipeSuggestion, setRecipeSuggestion] = useState<string | null>(null);
+  
+  // --- CAMERA STATE ---
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     localStorage.setItem('inventoryItems', JSON.stringify(items));
-    window.dispatchEvent(new Event('storage')); // Atualiza Dashboard se necessário
+    window.dispatchEvent(new Event('storage'));
   }, [items]);
+
+  // Limpeza da câmera ao desmontar
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
 
   const handleManualAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,26 +62,14 @@ export const Inventory: React.FC = () => {
     setItems(items.filter(i => i.id !== id));
   };
 
-  // --- AI VISION LOGIC ---
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  // --- CORE AI ANALYSIS LOGIC ---
+  const analyzeImage = async (base64Data: string) => {
     setIsAnalyzing(true);
     setRecipeSuggestion(null);
 
     try {
-      // Converte arquivo para Base64
-      const base64Data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve((reader.result as string).split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-      // Chama a API do Gemini
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-      const model = 'gemini-2.5-flash'; // Modelo capaz de visão
+      const model = 'gemini-2.5-flash'; 
       
       const prompt = `
         Analise esta imagem de uma geladeira ou despensa. 
@@ -83,7 +84,7 @@ export const Inventory: React.FC = () => {
           {
             parts: [
               { text: prompt },
-              { inlineData: { mimeType: file.type, data: base64Data } }
+              { inlineData: { mimeType: 'image/jpeg', data: base64Data } }
             ]
           }
         ]
@@ -91,12 +92,15 @@ export const Inventory: React.FC = () => {
 
       const textResponse = response.text;
       
-      // Tenta limpar e parsear o JSON
       try {
         const cleanedText = textResponse?.replace(/```json|```/g, '').trim();
         const detectedItems: string[] = JSON.parse(cleanedText || '[]');
         
-        detectedItems.forEach(item => addItem(item, 'Detectado por IA'));
+        if (detectedItems.length === 0) {
+            alert("Não consegui identificar alimentos na imagem. Tente um ângulo melhor.");
+        } else {
+            detectedItems.forEach(item => addItem(item, 'Detectado por IA'));
+        }
       } catch (parseError) {
         console.error("Erro ao ler resposta da IA:", textResponse);
         alert("A IA viu a imagem, mas não consegui ler a lista. Tente novamente.");
@@ -107,9 +111,73 @@ export const Inventory: React.FC = () => {
       alert("Erro ao analisar imagem. Verifique sua conexão ou a API Key.");
     } finally {
       setIsAnalyzing(false);
-      // Limpa o input para permitir re-upload do mesmo arquivo
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
+  };
+
+  // --- CAMERA LOGIC ---
+  const startCamera = async () => {
+    try {
+      setIsCameraOpen(true);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } // Tenta usar a câmera traseira
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error("Erro ao acessar câmera:", err);
+      alert("Não foi possível acessar a câmera. Verifique as permissões.");
+      setIsCameraOpen(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setIsCameraOpen(false);
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      // Configura o canvas para o tamanho do vídeo
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      // Desenha o frame atual
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Converte para Base64 (JPEG)
+        const base64Data = canvas.toDataURL('image/jpeg').split(',')[1];
+        
+        // Para a câmera e inicia a análise
+        stopCamera();
+        analyzeImage(base64Data);
+      }
+    }
+  };
+
+  // --- FILE UPLOAD LOGIC ---
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Converte arquivo para Base64
+    const reader = new FileReader();
+    reader.onload = () => {
+        const base64Data = (reader.result as string).split(',')[1];
+        analyzeImage(base64Data);
+    };
+    reader.readAsDataURL(file);
+    
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   // --- CHEF MODE LOGIC ---
@@ -144,7 +212,36 @@ export const Inventory: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gradient-to-br from-orange-600 to-red-900 p-8 font-sans text-white">
+    <div className="flex-1 overflow-y-auto bg-gradient-to-br from-orange-600 to-red-900 p-8 font-sans text-white relative">
+      
+      {/* CAMERA OVERLAY MODAL */}
+      {isCameraOpen && (
+        <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center">
+            <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                className="w-full h-full object-cover"
+            />
+            <canvas ref={canvasRef} className="hidden" />
+            
+            {/* Camera Controls */}
+            <div className="absolute bottom-8 w-full flex justify-center items-center gap-8 pb-4">
+                <button 
+                    onClick={stopCamera}
+                    className="p-4 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors"
+                >
+                    Cancelar
+                </button>
+                <button 
+                    onClick={capturePhoto}
+                    className="w-20 h-20 rounded-full bg-white border-4 border-gray-300 shadow-lg hover:scale-105 transition-transform"
+                    aria-label="Tirar Foto"
+                ></button>
+            </div>
+        </div>
+      )}
+
       <header className="flex items-center space-x-3 mb-8">
         <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-orange-400/20 text-orange-300">
           <InventoryIcon />
@@ -165,25 +262,37 @@ export const Inventory: React.FC = () => {
               <CameraIcon /> Escanear Geladeira
             </h3>
             <p className="text-sm text-white/60 mb-4">
-              Tire uma foto da sua geladeira ou despensa e deixe a IA listar o que tem dentro.
+              Use a câmera para identificar ingredientes instantaneamente ou envie uma foto.
             </p>
             
-            <input 
-              type="file" 
-              accept="image/*" 
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-            
-            <button 
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isAnalyzing}
-              className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isAnalyzing ? <LoadingSpinnerIcon /> : <UploadIcon />}
-              {isAnalyzing ? "Analisando..." : "Enviar Foto"}
-            </button>
+            <div className="flex flex-col gap-3">
+                {/* Botão Câmera Nativa */}
+                <button 
+                  onClick={startCamera}
+                  disabled={isAnalyzing}
+                  className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAnalyzing ? <LoadingSpinnerIcon /> : <CameraIcon />}
+                  {isAnalyzing ? "Processando..." : "Tirar Foto Agora"}
+                </button>
+
+                {/* Botão Upload Fallback */}
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isAnalyzing}
+                  className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+                >
+                  <UploadIcon />
+                  Carregar da Galeria
+                </button>
+            </div>
           </div>
 
           {/* Card Manual */}

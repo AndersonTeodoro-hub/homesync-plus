@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import type { Contact } from '../types';
 import { FamilyIcon, PhoneIcon, MessageIcon, CalendarIcon } from './Icons';
 import { ScheduleModal } from './ScheduleModal';
@@ -13,20 +14,34 @@ const mainUser: Contact = {
     email: 'anderson.teodoro@gmail.com'
 };
 
+// Contatos iniciais padrão
 const initialContacts: Contact[] = [
-  { id: 1, name: 'Cristina', relationship: 'Esposa', phone: '+55 11 91234-5678', whatsapp: '+55 11 91234-5678', email: '' },
-  { id: 2, name: 'Filho Exemplo', relationship: 'Filho', phone: '+55 11 95555-4444', whatsapp: '+55 11 95555-4444', email: '' },
+  { id: 1, name: 'Cris', relationship: 'Esposa', phone: '5511999999999', whatsapp: '5511999999999', email: 'cris@email.com' },
+  { id: 2, name: 'Filho', relationship: 'Filho', phone: '5511988888888', whatsapp: '5511988888888', email: '' },
 ];
 
-
 export const Family: React.FC = () => {
-  const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+  const [contacts, setContacts] = useState<Contact[]>(() => {
+      try {
+          const saved = localStorage.getItem('familyContacts');
+          return saved ? JSON.parse(saved) : initialContacts;
+      } catch {
+          return initialContacts;
+      }
+  });
+
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Contact>>({});
+
+  useEffect(() => {
+      localStorage.setItem('familyContacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   const handleSimulateCall = (contactName: string) => {
-    alert(`Simulando chamada para ${contactName}...`);
+    alert(`Simulando chamada para ${contactName}... (Recurso Premium para automação real)`);
   };
 
   const handleOpenSmsModal = (contact: Contact) => {
@@ -41,14 +56,17 @@ export const Family: React.FC = () => {
 
   const handleSendSms = (message: string) => {
     if (!selectedContact) return;
-    alert(`Simulando envio de SMS para ${selectedContact.name}:\n"${message}"`);
+    alert(`Enviando SMS para ${selectedContact.name}:\n"${message}"`);
     handleCloseSmsModal();
   };
   
-  const handleSimulateWhatsApp = (contactName: string) => {
-    const message = prompt(`Digite a mensagem de WhatsApp para ${contactName}:`);
+  const handleSimulateWhatsApp = (contact: Contact) => {
+    const message = prompt(`Digite a mensagem de WhatsApp para ${contact.name}:`);
      if (message) {
-      alert(`Simulando envio de WhatsApp para ${contactName}:\n"${message}"`);
+      // Remove caracteres não numéricos para o link
+      const cleanNumber = contact.whatsapp.replace(/\D/g, '');
+      const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
     }
   };
 
@@ -69,15 +87,25 @@ export const Family: React.FC = () => {
     time: string;
     message: string;
   }) => {
-    const formattedDate = new Date(`${details.date}T${details.time}`).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const actionText = details.actionType === 'call' ? 'Chamada agendada' : 'Lembrete de compromisso agendado';
-    
-    alert(`${actionText} para ${details.contactName} em ${formattedDate} às ${details.time}.\nMotivo: ${details.message}`);
+    alert(`Agendado: ${details.actionType} para ${details.contactName} em ${details.date} às ${details.time}.`);
     handleCloseScheduleModal();
+  };
+
+  // --- EDIT LOGIC ---
+  const startEdit = (contact: Contact) => {
+      setIsEditing(contact.id);
+      setEditForm(contact);
+  };
+
+  const saveEdit = () => {
+      if (!editForm.name || !editForm.whatsapp) return;
+      setContacts(contacts.map(c => c.id === isEditing ? { ...c, ...editForm } as Contact : c));
+      setIsEditing(null);
+  };
+
+  const cancelEdit = () => {
+      setIsEditing(null);
+      setEditForm({});
   };
 
   return (
@@ -94,53 +122,62 @@ export const Family: React.FC = () => {
         </header>
         
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* User's own contact card */}
-          <div>
-              <h2 className="text-xl font-semibold text-white/90 mb-4">Meus Dados</h2>
-              <div className="bg-black/20 backdrop-blur-sm border border-white/10 p-4 rounded-xl shadow-lg">
-                  <p><strong>Nome:</strong> {mainUser.name}</p>
-                  <p><strong>Telefone:</strong> {mainUser.phone}</p>
-                  <p><strong>WhatsApp:</strong> {mainUser.whatsapp}</p>
-                  <p><strong>Email:</strong> {mainUser.email}</p>
-                  <button className="mt-4 text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded-md transition-colors">
-                      Editar
-                  </button>
-              </div>
-          </div>
-
           {/* Family contacts list */}
           <div>
               <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold text-white/90">Contatos da Família</h2>
-                  <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md">
-                      Adicionar Contato
-                  </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {contacts.map(contact => (
                       <div key={contact.id} className="bg-black/20 backdrop-blur-sm border border-white/10 p-5 rounded-xl shadow-lg flex flex-col space-y-3">
-                          <div>
-                              <p className="text-lg font-bold">{contact.name}</p>
-                              <p className="text-sm text-white/70">{contact.relationship}</p>
-                          </div>
-                          <div className="border-t border-white/10 pt-3">
-                              <p className="text-sm"><strong>Telefone:</strong> {contact.phone}</p>
-                              <p className="text-sm"><strong>WhatsApp:</strong> {contact.whatsapp}</p>
-                          </div>
-                          <div className="flex items-center justify-end flex-wrap gap-2 border-t border-white/10 pt-3 mt-auto">
-                            <button onClick={() => handleOpenScheduleModal(contact)} className="flex items-center gap-1.5 text-sm bg-purple-500/80 hover:bg-purple-500 px-3 py-1.5 rounded-md transition-colors" aria-label={`Agendar para ${contact.name}`}>
-                                <CalendarIcon /> Agendar
-                            </button>
-                            <button onClick={() => handleSimulateCall(contact.name)} className="flex items-center gap-1.5 text-sm bg-blue-500/80 hover:bg-blue-500 px-3 py-1.5 rounded-md transition-colors" aria-label={`Ligar para ${contact.name}`}>
-                                <PhoneIcon /> Ligar
-                            </button>
-                            <button onClick={() => handleOpenSmsModal(contact)} className="flex items-center gap-1.5 text-sm bg-green-500/80 hover:bg-green-500 px-3 py-1.5 rounded-md transition-colors" aria-label={`Enviar SMS para ${contact.name}`}>
-                                <MessageIcon /> SMS
-                            </button>
-                            <button onClick={() => handleSimulateWhatsApp(contact.name)} className="flex items-center gap-1.5 text-sm bg-teal-500/80 hover:bg-teal-500 px-3 py-1.5 rounded-md transition-colors" aria-label={`Enviar WhatsApp para ${contact.name}`}>
-                                <MessageIcon /> WhatsApp
-                            </button>
-                          </div>
+                          {isEditing === contact.id ? (
+                              <div className="space-y-2 bg-black/40 p-3 rounded-lg">
+                                  <label className="text-xs text-white/60">Nome</label>
+                                  <input 
+                                    className="w-full p-2 rounded bg-black/30 text-white border border-white/10 mb-2" 
+                                    value={editForm.name} 
+                                    onChange={e => setEditForm({...editForm, name: e.target.value})} 
+                                    placeholder="Nome"
+                                  />
+                                  <label className="text-xs text-white/60">WhatsApp (DDD + Número)</label>
+                                  <input 
+                                    className="w-full p-2 rounded bg-black/30 text-white border border-white/10" 
+                                    value={editForm.whatsapp} 
+                                    onChange={e => setEditForm({...editForm, whatsapp: e.target.value})} 
+                                    placeholder="5511999999999"
+                                  />
+                                  <div className="flex gap-2 justify-end mt-2 pt-2 border-t border-white/10">
+                                      <button onClick={cancelEdit} className="text-xs text-gray-300 hover:text-white px-2">Cancelar</button>
+                                      <button onClick={saveEdit} className="text-xs bg-green-600 hover:bg-green-500 px-3 py-1 rounded font-bold">Salvar</button>
+                                  </div>
+                              </div>
+                          ) : (
+                              <>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="text-lg font-bold">{contact.name}</p>
+                                        <p className="text-sm text-white/70">{contact.relationship}</p>
+                                    </div>
+                                    <button onClick={() => startEdit(contact)} className="text-xs text-white/40 hover:text-white bg-white/5 px-2 py-1 rounded">Editar</button>
+                                </div>
+                                <div className="border-t border-white/10 pt-3">
+                                    <p className="text-sm flex items-center gap-2">
+                                        <span className="opacity-50">📞</span> {contact.whatsapp}
+                                    </p>
+                                </div>
+                              </>
+                          )}
+                          
+                          {!isEditing && (
+                            <div className="flex items-center justify-end flex-wrap gap-2 border-t border-white/10 pt-3 mt-auto">
+                                <button onClick={() => handleSimulateCall(contact.name)} className="flex items-center gap-1.5 text-sm bg-blue-500/80 hover:bg-blue-500 px-3 py-1.5 rounded-md transition-colors" aria-label={`Ligar para ${contact.name}`}>
+                                    <PhoneIcon /> Ligar
+                                </button>
+                                <button onClick={() => handleSimulateWhatsApp(contact)} className="flex items-center gap-1.5 text-sm bg-teal-500/80 hover:bg-teal-500 px-3 py-1.5 rounded-md transition-colors" aria-label={`Enviar WhatsApp para ${contact.name}`}>
+                                    <MessageIcon /> WhatsApp
+                                </button>
+                            </div>
+                          )}
                       </div>
                   ))}
               </div>
