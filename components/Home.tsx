@@ -1,7 +1,8 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { View } from '../types';
 import { Avatar } from './Avatar';
+import { CapabilitiesModal } from './CapabilitiesModal'; // Importação do Modal
 import { 
     MicIcon, 
     KeyboardIcon, 
@@ -12,7 +13,9 @@ import {
     ShoppingCartIcon,
     DashboardIcon,
     LearnIcon,
-    HeartIcon
+    HeartIcon,
+    CameraIcon,
+    SparklesIcon
 } from './Icons';
 
 type AppState = 'sleeping' | 'active';
@@ -35,6 +38,7 @@ export const Home: React.FC<HomeProps> = ({
     startVoiceSession,
     onShareApp,
 }) => {
+  const [isCapabilitiesOpen, setIsCapabilitiesOpen] = useState(false);
 
   const getStatusText = () => {
       if (appState === 'sleeping') return "Dormindo";
@@ -93,16 +97,25 @@ export const Home: React.FC<HomeProps> = ({
             {/* Main Content (Avatar) */}
             <main className="relative z-10 flex-1 flex flex-col items-center justify-center -mt-4">
                 
-                {/* Avatar Container - Otimizado para PNG */}
-                <div className="relative z-20 w-full max-w-xs h-[50vh] max-h-[500px] transition-transform duration-500 flex items-center justify-center p-6">
+                {/* Avatar Container */}
+                <div className="relative z-20 w-full max-w-xs h-[45vh] max-h-[450px] transition-transform duration-500 flex items-center justify-center p-6">
                     <Avatar role="model" isSleeping={appState === 'sleeping'} voiceState={voiceState} />
                 </div>
                 
                 {/* Status Pill */}
-                <div className="mt-4 px-6 py-2 bg-white/5 border border-white/10 rounded-full flex items-center gap-3 shadow-xl z-20 backdrop-blur-md">
+                <div className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full flex items-center gap-3 shadow-xl z-20 backdrop-blur-md">
                     <span className="text-lg animate-pulse">{getStatusEmoji()}</span>
                     <span className="text-sm font-semibold text-gray-200 uppercase tracking-wider">{getStatusText()}</span>
                 </div>
+
+                {/* Botão Descubra meus poderes (SHOWCASE) */}
+                <button 
+                    onClick={() => setIsCapabilitiesOpen(true)}
+                    className="mt-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 hover:border-indigo-400/50 hover:bg-indigo-500/30 transition-all text-xs font-medium text-indigo-200 z-20"
+                >
+                    <SparklesIcon />
+                    Descubra meus poderes
+                </button>
                 
                 {error && <div className="mt-4 bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-2 rounded-lg text-sm z-20 max-w-xs text-center">{error}</div>}
             </main>
@@ -110,9 +123,11 @@ export const Home: React.FC<HomeProps> = ({
             {/* Bottom Controls Area */}
             <footer className="relative z-10 pb-8 px-6 flex flex-col items-center gap-8 w-full">
                 
-                {/* Primary Actions (Mic & Chat) - Centered and clean */}
+                {/* Primary Actions (Mic & Chat & Vision) */}
                 {appState === 'sleeping' && (
-                    <div className="flex items-center justify-center gap-10 w-full">
+                    <div className="flex items-center justify-center gap-6 w-full">
+                        
+                        {/* Texto */}
                         <button 
                             onClick={() => setView('text-chat')} 
                             className="w-12 h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
@@ -133,17 +148,18 @@ export const Home: React.FC<HomeProps> = ({
                             </div>
                         </button>
 
+                        {/* Câmera / Visão */}
                         <button 
-                            onClick={onShareApp}
+                            onClick={() => setView('inventory')}
                             className="w-12 h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
-                            aria-label="Compartilhar"
+                            aria-label="Abrir Visão Computacional"
                         >
-                             <PlayCircleIcon />
+                             <CameraIcon />
                         </button>
                     </div>
                 )}
 
-                {/* Bottom Dock Shortcuts - Glassmorphism */}
+                {/* Bottom Dock Shortcuts */}
                 <div className="w-full max-w-lg bg-[#0f172a]/80 backdrop-blur-xl border-t border-white/5 rounded-t-3xl rounded-b-xl p-4 flex justify-between items-center shadow-2xl">
                     {bottomShortcuts.map((shortcut) => (
                         <button 
@@ -159,6 +175,9 @@ export const Home: React.FC<HomeProps> = ({
                     ))}
                 </div>
             </footer>
+
+            {/* Modal de Habilidades */}
+            <CapabilitiesModal isOpen={isCapabilitiesOpen} onClose={() => setIsCapabilitiesOpen(false)} />
         </div>
     );
 };
