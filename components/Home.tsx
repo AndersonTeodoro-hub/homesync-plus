@@ -87,31 +87,32 @@ export const Home: React.FC<HomeProps> = ({
             </div>
             
             {/* Header */}
-            <header className="relative z-10 pt-8 pb-2 text-center">
-                <h1 className="text-3xl font-bold tracking-tight mb-1 flex items-center justify-center gap-2 text-white">
+            <header className="relative z-10 pt-6 pb-1 text-center">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 flex items-center justify-center gap-2 text-white">
                     <span className="text-pink-500">★</span> Async <span className="text-pink-500 font-light">+</span>
                 </h1>
-                <p className="text-slate-400 text-xs font-medium tracking-wide uppercase opacity-80">Sua companhia inteligente</p>
+                <p className="text-slate-400 text-[10px] md:text-xs font-medium tracking-wide uppercase opacity-80">Sua companhia inteligente</p>
             </header>
 
             {/* Main Content (Avatar) */}
-            <main className="relative z-10 flex-1 flex flex-col items-center justify-center -mt-4">
+            <main className="relative z-10 flex-1 flex flex-col items-center justify-center -mt-2">
                 
-                {/* Avatar Container */}
-                <div className="relative z-20 w-full max-w-xs h-[45vh] max-h-[450px] transition-transform duration-500 flex items-center justify-center p-6">
+                {/* Avatar Container - SUPER AUMENTADO */}
+                {/* Agora ocupa até 75% da altura da tela e é muito mais largo */}
+                <div className="relative z-20 w-full max-w-lg md:max-w-2xl h-[65vh] md:h-[75vh] max-h-[900px] transition-transform duration-500 flex items-center justify-center p-0">
                     <Avatar role="model" isSleeping={appState === 'sleeping'} voiceState={voiceState} />
                 </div>
                 
                 {/* Status Pill */}
-                <div className="mt-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full flex items-center gap-3 shadow-xl z-20 backdrop-blur-md">
-                    <span className="text-lg animate-pulse">{getStatusEmoji()}</span>
-                    <span className="text-sm font-semibold text-gray-200 uppercase tracking-wider">{getStatusText()}</span>
+                <div className="mt-2 px-5 py-1.5 bg-white/5 border border-white/10 rounded-full flex items-center gap-2 shadow-xl z-20 backdrop-blur-md">
+                    <span className="text-base animate-pulse">{getStatusEmoji()}</span>
+                    <span className="text-xs md:text-sm font-semibold text-gray-200 uppercase tracking-wider">{getStatusText()}</span>
                 </div>
 
                 {/* Botão Descubra meus poderes (SHOWCASE) */}
                 <button 
                     onClick={() => setIsCapabilitiesOpen(true)}
-                    className="mt-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 hover:border-indigo-400/50 hover:bg-indigo-500/30 transition-all text-xs font-medium text-indigo-200 z-20"
+                    className="mt-3 flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 hover:border-indigo-400/50 hover:bg-indigo-500/30 transition-all text-[10px] md:text-xs font-medium text-indigo-200 z-20"
                 >
                     <SparklesIcon />
                     Descubra meus poderes
@@ -121,7 +122,7 @@ export const Home: React.FC<HomeProps> = ({
             </main>
 
             {/* Bottom Controls Area */}
-            <footer className="relative z-10 pb-8 px-6 flex flex-col items-center gap-8 w-full">
+            <footer className="relative z-10 pb-6 px-6 flex flex-col items-center gap-6 w-full">
                 
                 {/* Primary Actions (Mic & Chat & Vision) */}
                 {appState === 'sleeping' && (
@@ -130,7 +131,7 @@ export const Home: React.FC<HomeProps> = ({
                         {/* Texto */}
                         <button 
                             onClick={() => setView('text-chat')} 
-                            className="w-12 h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
                             aria-label="Abrir Chat de Texto"
                         >
                             <KeyboardIcon /> 
@@ -143,15 +144,15 @@ export const Home: React.FC<HomeProps> = ({
                             aria-label="Ativar Voz"
                         >
                             <div className="absolute inset-0 bg-pink-600 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 animate-pulse"></div>
-                            <div className="relative w-20 h-20 bg-gradient-to-br from-[#ec4899] to-[#be185d] rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-200 border-[4px] border-[#0f172a]">
-                                <MicIcon className="w-8 h-8 text-white drop-shadow-sm" />
+                            <div className="relative w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[#ec4899] to-[#be185d] rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-200 border-[4px] border-[#0f172a]">
+                                <MicIcon className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-sm" />
                             </div>
                         </button>
 
                         {/* Câmera / Visão */}
                         <button 
                             onClick={() => setView('inventory')}
-                            className="w-12 h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
                             aria-label="Abrir Visão Computacional"
                         >
                              <CameraIcon />
@@ -160,15 +161,15 @@ export const Home: React.FC<HomeProps> = ({
                 )}
 
                 {/* Bottom Dock Shortcuts */}
-                <div className="w-full max-w-lg bg-[#0f172a]/80 backdrop-blur-xl border-t border-white/5 rounded-t-3xl rounded-b-xl p-4 flex justify-between items-center shadow-2xl">
+                <div className="w-full max-w-lg bg-[#0f172a]/80 backdrop-blur-xl border-t border-white/5 rounded-t-3xl rounded-b-xl p-3 md:p-4 flex justify-between items-center shadow-2xl">
                     {bottomShortcuts.map((shortcut) => (
                         <button 
                             key={shortcut.id}
                             onClick={() => setView(shortcut.view)}
-                            className={`p-2 rounded-xl hover:bg-white/5 transition-all duration-200 relative group flex flex-col items-center gap-1 ${shortcut.color}`}
+                            className={`p-1.5 md:p-2 rounded-xl hover:bg-white/5 transition-all duration-200 relative group flex flex-col items-center gap-1 ${shortcut.color}`}
                             aria-label={shortcut.id}
                         >
-                            <div className="w-6 h-6 flex items-center justify-center opacity-80 group-hover:opacity-100 transform group-hover:scale-110 transition-transform">
+                            <div className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center opacity-80 group-hover:opacity-100 transform group-hover:scale-110 transition-transform">
                                 {shortcut.icon}
                             </div>
                         </button>
