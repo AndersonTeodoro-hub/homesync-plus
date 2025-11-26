@@ -76,10 +76,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setView, onShareAp
         {/* Feedback Button for Beta Testers - Highlighted */}
         <a 
             href="mailto:anderson.teodoro@gmail.com?subject=Feedback Async+ Beta"
-            className="flex items-center justify-center space-x-2 w-full p-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors border border-amber-200 text-sm font-semibold shadow-sm"
+            className="flex items-center justify-center space-x-2 w-full p-2.5 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-700 transition-colors border border-yellow-200 text-sm font-semibold shadow-sm"
         >
             <MessageIcon />
-            <span>Enviar Feedback Beta</span>
+            <span>Reportar Bug / Feedback</span>
         </a>
 
         <div className="flex items-center justify-between pt-2">

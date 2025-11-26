@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Chat, Modality, Blob, LiveServerMessage } from '@google/genai';
 import { SYSTEM_INSTRUCTION, LIVE_MODEL_NAME } from './constants';
@@ -9,11 +10,18 @@ import { Dashboard } from './components/Dashboard';
 import { TextChat } from './components/TextChat';
 import { Shopping } from './components/Shopping';
 import { Family } from './components/Family';
+import { Finances } from './components/Finances';
+import { Tasks } from './components/Tasks';
+import { Inventory } from './components/Inventory';
+import { Learning } from './components/Learning';
+import { Essence } from './components/Essence';
+import { Babysitter } from './components/Babysitter'; // Importação corrigida
 import { MenuIcon } from './components/Icons';
 import { Nutritionist } from './components/Nutritionist';
 import { PersonalTrainer } from './components/PersonalTrainer';
 import { GlobalVoiceControl } from './components/GlobalVoiceControl';
 import { ShareModal } from './components/ShareModal';
+import { Login } from './components/Login';
 
 // Adiciona a tipagem para a função de compartilhamento da plataforma
 declare global {
@@ -26,6 +34,10 @@ declare global {
 }
 
 const App: React.FC = () => {
+  // --- Auth State ---
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState('');
+
   const [activeView, setActiveView] = useState<View>('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -55,6 +67,13 @@ const App: React.FC = () => {
 
   // --- Initialization ---
   useEffect(() => {
+    // Check Auth
+    const storedUser = localStorage.getItem('async_user');
+    if (storedUser) {
+        setUserName(storedUser);
+        setIsAuthenticated(true);
+    }
+
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
       const chatSession = ai.chats.create({
@@ -71,6 +90,12 @@ const App: React.FC = () => {
       stopVoiceSession(false);
     };
   }, []);
+
+  const handleLogin = (name: string) => {
+      localStorage.setItem('async_user', name);
+      setUserName(name);
+      setIsAuthenticated(true);
+  };
   
   // --- Text Chat Logic ---
   const handleSendMessage = async (userInput: string) => {
@@ -170,7 +195,15 @@ const App: React.FC = () => {
 
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error('Media Devices API not supported.');
-      mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Request audio with aggressive echo cancellation constraints
+      mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } 
+      });
       
       inputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       outputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
@@ -253,8 +286,6 @@ const App: React.FC = () => {
     try {
         const url = window.location.href;
         setShareUrl(url);
-        
-        // Use a standard public API for QR codes to avoid library import issues in the browser environment
         const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(url)}&color=000000&bgcolor=ffffff`;
         setQrCodeUrl(qrApiUrl);
         setIsShareModalOpen(true);
@@ -275,6 +306,18 @@ const App: React.FC = () => {
     switch(activeView) {
         case 'dashboard':
             return <Dashboard setView={handleSetView} />;
+        case 'finances':
+            return <Finances />;
+        case 'tasks':
+            return <Tasks />;
+        case 'inventory':
+            return <Inventory />;
+        case 'learning':
+            return <Learning />;
+        case 'essence':
+            return <Essence />;
+        case 'babysitter': // Nova Rota
+            return <Babysitter />;
         case 'text-chat':
             return <TextChat 
                         messages={messages} 
@@ -317,6 +360,11 @@ const App: React.FC = () => {
                         onShareApp={handleShareApp}
                     />;
     }
+  }
+
+  // --- RENDERIZAÇÃO CONDICIONAL (LOGIN) ---
+  if (!isAuthenticated) {
+      return <Login onLogin={handleLogin} />;
   }
 
   return (

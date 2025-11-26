@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface AvatarProps {
@@ -9,149 +10,141 @@ interface AvatarProps {
 export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceState = 'idle' }) => {
   if (role === 'model') {
     const isSpeaking = voiceState === 'speaking';
-    const isListening = voiceState === 'listening';
     
-    // Animação de respiração lenta para o modo dormir
-    const breathingStyle = isSleeping 
-        ? { animation: 'breathe 6s ease-in-out infinite' } 
-        : { animation: 'float 6s ease-in-out infinite' };
-
     return (
-      <div className="w-full h-full relative" style={breathingStyle}>
+      <div className="w-full h-full flex items-center justify-center">
         <svg 
-          viewBox="0 0 200 320" 
+          viewBox="0 0 600 900" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full drop-shadow-2xl"
+          style={{ overflow: 'visible' }}
         >
           <defs>
-            {/* Gradiente do Corpo de Vidro */}
-            <linearGradient id="glass-body" x1="100" y1="0" x2="100" y2="320" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stopColor="white" stopOpacity="0.15"/>
-              <stop offset="0.4" stopColor="white" stopOpacity="0.05"/>
-              <stop offset="1" stopColor="white" stopOpacity="0.02"/>
-            </linearGradient>
-
-            {/* Borda de Vidro */}
-            <linearGradient id="glass-stroke" x1="0" y1="0" x2="200" y2="320" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stopColor="white" stopOpacity="0.8"/>
-              <stop offset="0.5" stopColor="white" stopOpacity="0.1"/>
-              <stop offset="1" stopColor="white" stopOpacity="0.4"/>
-            </linearGradient>
-
-            {/* Cabeça Interna (Esfera Branca Suave) */}
-            <radialGradient id="inner-head" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 110) rotate(90) scale(95)">
-              <stop stopColor="#F8FAFC"/>
-              <stop offset="1" stopColor="#E2E8F0"/>
+            {/* CORPO: CÁPSULA PREMIUM (Azul Suave) */}
+            <radialGradient id="bodyGradient" cx="50%" cy="30%" r="70%">
+              <stop offset="0%" stopColor="#FFFFFF"/>
+              <stop offset="55%" stopColor="#EEF3FA"/>
+              <stop offset="100%" stopColor="#D4DCE8"/>
             </radialGradient>
 
-            {/* Blush (Bochechas Rosadas) */}
-            <radialGradient id="blush-glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 110) rotate(90) scale(40)">
-              <stop stopColor="#F472B6" stopOpacity="0.4"/>
-              <stop offset="1" stopColor="#F472B6" stopOpacity="0"/>
+            {/* ROSTO: BRANCO PURO DESTACADO */}
+            <radialGradient id="faceGradient" cx="50%" cy="38%" r="85%">
+              <stop offset="0%" stopColor="#FFFFFF"/>
+              <stop offset="50%" stopColor="#F1F5FF"/>
+              <stop offset="100%" stopColor="#D5DEEE"/>
             </radialGradient>
 
-            {/* Sombra suave interna */}
-            <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
-               <feGaussianBlur stdDeviation="5" result="blur"/>
-            </filter>
+            {/* OLHOS: PROFUNDIDADE REALISTA */}
+            <radialGradient id="eyeDepth" cx="45%" cy="40%" r="90%">
+                <stop offset="0%" stopColor="#000000" stopOpacity="0.95"/>
+                <stop offset="55%" stopColor="#0A0A0A" stopOpacity="0.95"/>
+                <stop offset="100%" stopColor="#1A1A1A" stopOpacity="1"/>
+            </radialGradient>
+
+            {/* SOMBRA PÁLPEBRA */}
+            <linearGradient id="eyeShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#000000" stopOpacity="0.33"/>
+                <stop offset="100%" stopColor="#000000" stopOpacity="0"/>
+            </linearGradient>
           </defs>
 
           <style>
             {`
+              /* Respiração Natural */
               @keyframes breathe {
-                0%, 100% { transform: translateY(0) scale(1); }
-                50% { transform: translateY(-5px) scale(1.02); }
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-15px); }
               }
-              @keyframes float {
-                0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-8px); }
+              
+              /* SINCRONIZAÇÃO LABIAL AVANÇADA (Organic Lip Sync) */
+              /* Varia a altura e largura para simular fonemas (A, O, E, M) */
+              @keyframes lipSync {
+                0% { transform: scaleY(1) scaleX(1); }
+                25% { transform: scaleY(2.5) scaleX(0.85); } /* Boca alta (Ah/Oh) */
+                40% { transform: scaleY(0.8) scaleX(1.2); } /* Boca larga (Ee) */
+                60% { transform: scaleY(1.8) scaleX(0.95); } /* Boca média */
+                80% { transform: scaleY(0.5) scaleX(1.0); } /* Boca quase fechada (Mm) */
+                100% { transform: scaleY(1) scaleX(1); }
               }
-              @keyframes blink {
-                0%, 96%, 100% { transform: scaleY(1); }
-                98% { transform: scaleY(0.1); }
+
+              .sync-body {
+                animation: breathe 6s ease-in-out infinite;
+                transform-origin: center;
               }
-              @keyframes speak {
-                0%, 100% { transform: scaleY(1); }
-                50% { transform: scaleY(1.5); }
+              
+              /* Classe aplicada apenas quando falando */
+              .mouth-talking {
+                animation: lipSync 0.3s linear infinite; /* Rápido e contínuo */
               }
-              @keyframes listening-pulse {
-                0%, 100% { transform: scale(1); opacity: 0.8; }
-                50% { transform: scale(1.1); opacity: 1; }
+              
+              /* Garante que a boca cresça a partir do centro */
+              .mouth-container {
+                transform-box: fill-box;
+                transform-origin: center;
               }
             `}
           </style>
 
-          {/* 1. Sombra base para dar profundidade no fundo escuro */}
-          <ellipse cx="100" cy="290" rx="60" ry="15" fill="black" fillOpacity="0.4" filter="url(#soft-glow)" />
+          {/* GRUPO PRINCIPAL (Animado) */}
+          <g className="sync-body">
+            
+            {/* 1. CORPO (Cápsula) */}
+            <rect x="170" y="260" width="260" height="480" rx="130" fill="url(#bodyGradient)" />
 
-          {/* 2. Cápsula Externa (Vidro Traseiro) */}
-          <rect x="20" y="20" width="160" height="280" rx="80" fill="url(#glass-body)" />
+            {/* 2. ROSTO (Círculo sobreposto - Camada Superior) */}
+            {/* Sombra suave atrás da cabeça para destacar do corpo */}
+            <circle cx="300" cy="334" r="120" fill="#000000" fillOpacity="0.1" filter="blur(10px)" />
+            <circle cx="300" cy="330" r="120" fill="url(#faceGradient)"/>
 
-          {/* 3. Cabeça Interna (A "Alma" da Sync) */}
-          <g transform="translate(0, 10)">
-             {/* Forma da cabeça */}
-             <circle cx="100" cy="110" r="65" fill="url(#inner-head)" />
-             
-             {/* Corpo interno sutil desvanecendo para baixo */}
-             <path d="M60 160 C 60 160, 65 240, 100 240 C 135 240, 140 160, 140 160" stroke="white" strokeOpacity="0.1" strokeWidth="0" fill="white" fillOpacity="0.1" />
-             
-             {/* Bochechas (Blush) */}
-             <circle cx="65" cy="115" r="15" fill="#F9A8D4" fillOpacity="0.3" filter="url(#soft-glow)" />
-             <circle cx="135" cy="115" r="15" fill="#F9A8D4" fillOpacity="0.3" filter="url(#soft-glow)" />
-          </g>
+            {/* Blush Suave */}
+            <ellipse cx="245" cy="340" rx="30" ry="20" fill="#FFB7C7" fillOpacity="0.25" />
+            <ellipse cx="355" cy="340" rx="30" ry="20" fill="#FFB7C7" fillOpacity="0.25" />
 
-          {/* 4. Rosto (Olhos e Boca) */}
-          <g transform="translate(0, 10)">
             {isSleeping ? (
-               /* Olhos Dormindo (Traços horizontais suaves) */
-               <g stroke="#334155" strokeWidth="5" strokeLinecap="round" opacity="0.8">
-                  <path d="M75 110 Q 85 112, 95 110" />
-                  <path d="M105 110 Q 115 112, 125 110" />
-               </g>
+                // --- ESTADO: DORMINDO ---
+                <g id="eyes-closed">
+                    <rect x="240" y="312" width="30" height="6" rx="3" fill="#334155" fillOpacity="0.7"/>
+                    <rect x="330" y="312" width="30" height="6" rx="3" fill="#334155" fillOpacity="0.7"/>
+                    {/* Boca pequena dormindo */}
+                    <rect x="292" y="360" width="16" height="4" rx="2" fill="#94A3B8"/>
+                </g>
             ) : (
-               /* Olhos Acordados (Ovais grandes e pretos) */
-               <g fill="#1E293B" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
-                  <ellipse cx="82" cy="105" rx="9" ry="12" style={{ animation: 'blink 4s infinite' }}>
-                    {/* Brilho no olho */}
-                    <circle cx="85" cy="100" r="3" fill="white" fillOpacity="0.8" />
-                  </ellipse>
-                  <ellipse cx="118" cy="105" rx="9" ry="12" style={{ animation: 'blink 4s infinite 0.2s' }}>
-                     {/* Brilho no olho */}
-                     <circle cx="121" cy="100" r="3" fill="white" fillOpacity="0.8" />
-                  </ellipse>
-               </g>
-            )}
+                // --- ESTADO: ACORDADA ---
+                <g id="face-awake">
+                    {/* Olhos Abertos */}
+                    <g id="eyes-open">
+                        {/* Esquerdo */}
+                        <g>
+                            <circle cx="255" cy="315" r="18" fill="url(#eyeDepth)" />
+                            <circle cx="255" cy="315" r="20" fill="none" stroke="#000" strokeOpacity="0.1" strokeWidth="1"/>
+                            <circle cx="248" cy="308" r="5" fill="#FFFFFF" fillOpacity="0.9"/>
+                            <circle cx="260" cy="321" r="3" fill="#FFFFFF" fillOpacity="0.4"/>
+                        </g>
+                        {/* Direito */}
+                        <g>
+                            <circle cx="345" cy="315" r="18" fill="url(#eyeDepth)" />
+                            <circle cx="345" cy="315" r="20" fill="none" stroke="#000" strokeOpacity="0.1" strokeWidth="1"/>
+                            <circle cx="338" cy="308" r="5" fill="#FFFFFF" fillOpacity="0.9"/>
+                            <circle cx="350" cy="321" r="3" fill="#FFFFFF" fillOpacity="0.4"/>
+                        </g>
+                    </g>
 
-            {/* Boca (Pequeno ponto ou traço) */}
-            {isSpeaking ? (
-                <ellipse cx="100" cy="135" rx="6" ry="6" fill="#334155" opacity="0.8" style={{ animation: 'speak 0.4s infinite' }} />
-            ) : (
-                <circle cx="100" cy="132" r="2.5" fill="#334155" opacity="0.6" />
+                    {/* BOCA DINÂMICA */}
+                    <g 
+                      id="mouth-active" 
+                      className={`mouth-container ${isSpeaking ? 'mouth-talking' : ''}`}
+                    >
+                        {/* A boca base é um retângulo arredondado que será deformado pela animação CSS */}
+                        <rect x="288" y="360" width="24" height="8" rx="4" fill="#1A1A1A"/>
+                    </g>
+                </g>
             )}
           </g>
-
-          {/* 5. Cápsula Externa (Reflexos e Borda Frontal) */}
-          <rect x="20" y="20" width="160" height="280" rx="80" stroke="url(#glass-stroke)" strokeWidth="2" fill="none" />
-          
-          {/* Reflexo Glossy Superior */}
-          <path d="M50 35 Q 100 25, 150 35 Q 150 70, 130 50 Q 100 40, 70 50 Q 50 70, 50 35" fill="white" fillOpacity="0.15" />
-
-          {/* Reflexo Lateral Suave */}
-          <path d="M35 100 Q 30 150, 35 200" stroke="white" strokeWidth="3" strokeOpacity="0.1" strokeLinecap="round" fill="none" />
         </svg>
       </div>
     );
   }
 
-  // Fallback for User Role icon (Simple Profile)
-  return (
-    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        <circle cx="40" cy="40" r="38" fill="#E2E8F0" />
-        <path 
-            d="M40 38C45.5228 38 50 33.5228 50 28C50 22.4772 45.5228 18 40 18C34.4772 18 30 22.4772 30 28C30 33.5228 34.4772 38 40 38ZM25 62C25 53.7157 31.7157 47 40 47C48.2843 47 55 53.7157 55 62H25Z" 
-            fill="#64748B"
-        />
-    </svg>
-  );
+  return null;
 };

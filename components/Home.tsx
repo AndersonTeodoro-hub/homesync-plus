@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import type { View } from '../types';
 import { Avatar } from './Avatar';
@@ -67,20 +68,22 @@ export const Home: React.FC<HomeProps> = ({
 
     return (
         <div className="flex flex-col h-full relative overflow-hidden bg-[#0a0e17] text-white font-sans selection:bg-pink-500 selection:text-white">
-            {/* Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#111625] to-[#020202] pointer-events-none" />
-            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-900/10 blur-[150px] rounded-full pointer-events-none" />
+            {/* Background Effects - Darker Navy */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#1e293b] to-[#0f172a] pointer-events-none" />
+            
+            {/* Soft Ambient Light */}
+            <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[60%] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
             
             {/* Beta Badge */}
             <div className="absolute top-4 right-4 z-20">
-                <span className="bg-amber-500/10 backdrop-blur-md border border-amber-500/30 text-xs font-bold px-3 py-1 rounded-full text-amber-300 shadow-lg flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    ACESSO BETA VIP
+                <span className="bg-white/5 backdrop-blur-md border border-white/10 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full text-blue-200 shadow-lg flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                    BETA VIP
                 </span>
             </div>
             
             {/* Header */}
-            <header className="relative z-10 pt-12 pb-2 text-center">
+            <header className="relative z-10 pt-8 pb-2 text-center">
                 <h1 className="text-3xl font-bold tracking-tight mb-1 flex items-center justify-center gap-2 text-white">
                     <span className="text-pink-500">★</span> Async <span className="text-pink-500 font-light">+</span>
                 </h1>
@@ -89,18 +92,16 @@ export const Home: React.FC<HomeProps> = ({
 
             {/* Main Content (Avatar) */}
             <main className="relative z-10 flex-1 flex flex-col items-center justify-center -mt-4">
-                {/* Glow behind avatar */}
-                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full transition-all duration-1000 ${appState === 'active' ? 'opacity-100 scale-125' : 'opacity-50 scale-100'}`} />
                 
-                {/* Avatar Container - Slightly larger to match reference */}
-                <div className="relative z-20 w-64 h-[340px] transition-transform duration-500">
+                {/* Avatar Container - Otimizado para PNG */}
+                <div className="relative z-20 w-full max-w-xs h-[50vh] max-h-[500px] transition-transform duration-500 flex items-center justify-center p-6">
                     <Avatar role="model" isSleeping={appState === 'sleeping'} voiceState={voiceState} />
                 </div>
                 
-                {/* Status Pill - Matches reference "Dormindo" button style */}
-                <div className="mt-6 px-6 py-3 bg-[#1e2536] border border-white/5 rounded-full flex items-center gap-3 shadow-xl z-20">
+                {/* Status Pill */}
+                <div className="mt-4 px-6 py-2 bg-white/5 border border-white/10 rounded-full flex items-center gap-3 shadow-xl z-20 backdrop-blur-md">
                     <span className="text-lg animate-pulse">{getStatusEmoji()}</span>
-                    <span className="text-base font-semibold text-gray-200">{getStatusText()}</span>
+                    <span className="text-sm font-semibold text-gray-200 uppercase tracking-wider">{getStatusText()}</span>
                 </div>
                 
                 {error && <div className="mt-4 bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-2 rounded-lg text-sm z-20 max-w-xs text-center">{error}</div>}
@@ -114,27 +115,27 @@ export const Home: React.FC<HomeProps> = ({
                     <div className="flex items-center justify-center gap-10 w-full">
                         <button 
                             onClick={() => setView('text-chat')} 
-                            className="w-12 h-12 rounded-full bg-[#1e2436] text-slate-400 hover:text-white hover:bg-[#2a324a] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
+                            className="w-12 h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
                             aria-label="Abrir Chat de Texto"
                         >
                             <KeyboardIcon /> 
                         </button>
                         
-                        {/* Main Mic Button - Pink/Red Gradient with Glow */}
+                        {/* Main Mic Button */}
                         <button 
                             onClick={startVoiceSession}
                             className="relative group focus:outline-none"
                             aria-label="Ativar Voz"
                         >
-                            <div className="absolute inset-0 bg-pink-600 rounded-full blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-pulse"></div>
-                            <div className="relative w-20 h-20 bg-gradient-to-br from-[#ff2d6c] to-[#d90d4c] rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-200 border-[6px] border-[#0a0e17]/50">
+                            <div className="absolute inset-0 bg-pink-600 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 animate-pulse"></div>
+                            <div className="relative w-20 h-20 bg-gradient-to-br from-[#ec4899] to-[#be185d] rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-200 border-[4px] border-[#0f172a]">
                                 <MicIcon className="w-8 h-8 text-white drop-shadow-sm" />
                             </div>
                         </button>
 
                         <button 
                             onClick={onShareApp}
-                            className="w-12 h-12 rounded-full bg-[#1e2436] text-slate-400 hover:text-white hover:bg-[#2a324a] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
+                            className="w-12 h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
                             aria-label="Compartilhar"
                         >
                              <PlayCircleIcon />
@@ -143,7 +144,7 @@ export const Home: React.FC<HomeProps> = ({
                 )}
 
                 {/* Bottom Dock Shortcuts - Glassmorphism */}
-                <div className="w-full max-w-lg bg-[#0f1320]/60 backdrop-blur-xl border-t border-white/5 rounded-t-3xl rounded-b-xl p-4 flex justify-between items-center shadow-2xl">
+                <div className="w-full max-w-lg bg-[#0f172a]/80 backdrop-blur-xl border-t border-white/5 rounded-t-3xl rounded-b-xl p-4 flex justify-between items-center shadow-2xl">
                     {bottomShortcuts.map((shortcut) => (
                         <button 
                             key={shortcut.id}

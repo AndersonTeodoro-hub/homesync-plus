@@ -53,7 +53,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, qrDataU
         )}
         
         <p className="text-sm text-white/70 text-center mb-4">
-          Compartilhe este código com seus Beta Testers VIP para que eles possam testar o app em seus dispositivos.
+          Mostre este código ou envie o link para compartilhar o acesso ao Async+.
         </p>
         
         <div className="w-full bg-black/40 rounded-lg p-2 flex items-center border border-white/10 mb-2">

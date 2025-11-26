@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import type { View } from '../types';
 import { DollarIcon, CheckIcon, ShoppingCartIcon, BoxIcon, AlertIcon, RecentTasksIcon, FamilyIcon } from './Icons';
 
@@ -41,6 +42,51 @@ export const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
         day: 'numeric'
     });
 
+    // Estado para dados reais
+    const [balance, setBalance] = useState(0);
+    const [shoppingCount, setShoppingCount] = useState(0);
+    const [tasksCount, setTasksCount] = useState(0);
+
+    useEffect(() => {
+        const loadData = () => {
+            // Carregar Finanças
+            try {
+                const financeData = localStorage.getItem('financeTransactions');
+                if (financeData) {
+                    const transactions = JSON.parse(financeData);
+                    const total = transactions.reduce((acc: number, curr: any) => {
+                        return curr.type === 'income' ? acc + curr.amount : acc - curr.amount;
+                    }, 0);
+                    setBalance(total);
+                }
+            } catch (e) { console.error(e); }
+
+            // Carregar Compras
+            try {
+                const shoppingData = localStorage.getItem('shoppingList');
+                if (shoppingData) {
+                    const items = JSON.parse(shoppingData);
+                    setShoppingCount(items.filter((i: any) => !i.completed).length);
+                }
+            } catch (e) { console.error(e); }
+
+            // Carregar Tarefas (NOVO)
+            try {
+                const tasksData = localStorage.getItem('tasks');
+                if (tasksData) {
+                    const tasks = JSON.parse(tasksData);
+                    setTasksCount(tasks.filter((t: any) => !t.completed).length);
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        loadData();
+
+        // Escutar mudanças no storage para atualizar em tempo real
+        window.addEventListener('storage', loadData); 
+        return () => window.removeEventListener('storage', loadData);
+    }, []);
+
     return (
         <div className="flex-1 overflow-y-auto bg-gradient-to-br from-cyan-500 to-blue-800 p-8 text-white">
             <header>
@@ -51,23 +97,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
                 <DashboardCard 
                     icon={<DollarIcon />} 
-                    title="Saldo do Mês" 
-                    value="R$ 0.00" 
-                    change="+ 0%"
+                    title="Saldo Atual" 
+                    value={`R$ ${balance.toFixed(2)}`} 
+                    change="Atualizado em tempo real"
                     bgColor="bg-green-100"
+                    onClick={() => setView('finances')}
                 />
                 <DashboardCard 
                     icon={<CheckIcon />} 
                     title="Tarefas Pendentes" 
-                    value="0" 
-                    change="0%"
+                    value={tasksCount.toString()} 
+                    change={tasksCount === 0 ? "Você está em dia!" : "Foco e produtividade!"}
                     bgColor="bg-blue-100"
+                    onClick={() => setView('tasks')}
                 />
                 <DashboardCard 
                     icon={<ShoppingCartIcon />} 
-                    title="Lista de Compras" 
-                    value="0 itens"
+                    title="Para Comprar" 
+                    value={`${shoppingCount} itens`}
                     bgColor="bg-purple-100"
+                    onClick={() => setView('shopping')}
                 />
                 <DashboardCard 
                     icon={<BoxIcon />} 
@@ -75,12 +124,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                     value="0" 
                     change="Tudo OK"
                     bgColor="bg-orange-100"
+                    onClick={() => setView('inventory')}
                 />
                 <DashboardCard
                     icon={<FamilyIcon />}
                     title="Gerenciar Família"
-                    value="2 Contatos"
-                    change="Adicionar ou editar"
+                    value="Família"
+                    change="Contatos e Agenda"
                     bgColor="bg-pink-100"
                     onClick={() => setView('family')}
                     className="md:col-span-2 lg:col-span-4"
@@ -91,10 +141,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ setView }) => {
                 <div className="bg-black/20 backdrop-blur-sm border border-white/10 p-6 rounded-xl shadow-lg">
                     <div className="flex items-center space-x-2 mb-4">
                         <span className="text-blue-400"><RecentTasksIcon /></span>
-                        <h3 className="font-semibold text-white">Tarefas Recentes</h3>
+                        <h3 className="font-semibold text-white">Produtividade</h3>
                     </div>
                     <div className="text-center text-white/70 py-8">
-                        <p>Nenhuma tarefa pendente! 🎉</p>
+                        {tasksCount === 0 ? (
+                            <p>Tudo limpo por aqui! Aproveite o descanso. 🎉</p>
+                        ) : (
+                            <p>Você tem {tasksCount} tarefas aguardando sua atenção.</p>
+                        )}
                     </div>
                 </div>
                 <div className="bg-black/20 backdrop-blur-sm border border-white/10 p-6 rounded-xl shadow-lg">
