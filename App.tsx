@@ -335,13 +335,24 @@ const App: React.FC = () => {
       
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
       
+      // SAUDAÇÃO PROATIVA: Modificamos a instrução do sistema para garantir que a IA fale primeiro.
+      const currentUser = localStorage.getItem('async_user') || 'Usuário';
+      const greetingInstruction = `
+        ${SYSTEM_INSTRUCTION}
+        
+        [IMPORTANT: STARTUP PROTOCOL]
+        You must INITIATE the conversation immediately upon connection.
+        Do NOT wait for the user to speak.
+        Say exactly: "Olá ${currentUser}, tudo bem? O que vamos fazer agora?" in a warm, welcoming tone.
+      `;
+
       sessionRef.current = ai.live.connect({
           model: LIVE_MODEL_NAME,
           config: {
               responseModalities: [Modality.AUDIO],
               inputAudioTranscription: {},
               outputAudioTranscription: {},
-              systemInstruction: SYSTEM_INSTRUCTION,
+              systemInstruction: greetingInstruction, // AQUI ESTÁ A CORREÇÃO: Instrução injetada no config
           },
           callbacks: {
               onopen: () => {
@@ -355,6 +366,8 @@ const App: React.FC = () => {
                   };
                   source.connect(scriptProcessorRef.current);
                   scriptProcessorRef.current.connect(inputAudioContextRef.current!.destination);
+                  
+                  // REMOVIDO: session.send() que estava quebrando o app.
               },
               onmessage: async (msg) => {
                   // 1. Acumula a transcrição do que a IA está falando
