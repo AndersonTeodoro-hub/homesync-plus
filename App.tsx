@@ -117,15 +117,25 @@ const App: React.FC = () => {
           // Busca simples (case insensitive) e parcial
           const contact = contacts.find(c => c.name.toLowerCase().includes(name.toLowerCase()));
           
-          // Retorna apenas números para o link do WhatsApp
-          return contact ? contact.whatsapp.replace(/\D/g, '') : null; 
+          if (!contact) return null;
+
+          // Limpeza rigorosa para formato E.164 (ex: +5511999999999)
+          // Remove tudo que não for número ou +
+          let cleanNumber = contact.phone.replace(/[^0-9+]/g, '');
+          
+          // Se não tiver +, assume que é BR e adiciona +55 (fallback simples)
+          if (!cleanNumber.startsWith('+')) {
+              cleanNumber = '+55' + cleanNumber;
+          }
+          
+          return cleanNumber;
       } catch {
           return null;
       }
   };
 
   // --- Helper: Execute AI Action Command ---
-  const executeAICommand = (jsonString: string) => {
+  const executeAICommand = async (jsonString: string) => {
       try {
           const command = JSON.parse(jsonString);
           console.log("Executando comando IA:", command);
@@ -134,36 +144,61 @@ const App: React.FC = () => {
               const contactNumber = findContactNumber(command.contact);
               
               if (contactNumber) {
-                  const url = `https://wa.me/${contactNumber}?text=${encodeURIComponent(command.message)}`;
-                  console.log("Abrindo WhatsApp para:", command.contact, url);
+                  // Remove o '+' para o link do WhatsApp, pois wa.me prefere apenas números
+                  const waNumber = contactNumber.replace('+', '');
+                  const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(command.message)}`;
                   
-                  // Delay para permitir que a IA termine a frase de confirmação
                   setTimeout(() => {
                       window.open(url, '_blank');
-                      // Opcional: Parar a sessão de voz para o usuário usar o WhatsApp
-                      // setVoiceState('idle'); 
                   }, 2000);
               } else {
-                  // Se não achar, tenta abrir o WhatsApp genérico ou avisa
                   console.warn(`Contato não encontrado: ${command.contact}`);
-                  // alert(`A IA tentou enviar mensagem para ${command.contact}, mas não achei o número salvo em 'Família'.`);
-                  setTimeout(() => setActiveView('family'), 2000); // Leva o usuário para cadastrar
+                  setTimeout(() => setActiveView('family'), 2000);
               }
           } 
           else if (command.action === 'call') {
-              // Simula a chamada
-              setActiveCall({ contact: command.contact, status: 'Chamando...' });
-              
-              // Simula: Chamando -> Conectado -> Recurso Premium
-              setTimeout(() => {
-                  setActiveCall({ contact: command.contact, status: 'Conectado (Simulação)' });
-                  
-                  setTimeout(() => {
-                      setActiveCall(null);
-                      setPremiumFeatureName('Ligação Autônoma IA');
-                      setIsPremiumModalOpen(true);
-                  }, 3000);
-              }, 2500); 
+              const contactNumber = findContactNumber(command.contact);
+              const contactName = command.contact;
+
+              if (contactNumber) {
+                  // 1. Mostrar feedback visual imediato
+                  setActiveCall({ contact: contactName, status: 'Iniciando discagem...' });
+
+                  try {
+                      // 2. Tentar chamar o Backend Serverless (Twilio)
+                      const response = await fetch('/api/twilio-webhook', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                              to: contactNumber,
+                              message: `Olá ${contactName}. Aqui é a Async Plus. ${command.context || 'Tenho um recado importante para você.'}`
+                          })
+                      });
+
+                      const data = await response.json();
+
+                      if (data.mode === 'real') {
+                          // Sucesso Real (Twilio configurado)
+                          setActiveCall({ contact: contactName, status: 'Chamando via Rede Telefônica...' });
+                          setTimeout(() => setActiveCall(null), 5000); // Fecha após 5s
+                      } else {
+                          // Modo Simulação (Sem chaves ou erro) -> Jogar para Premium
+                          throw new Error('Simulation Mode');
+                      }
+
+                  } catch (err) {
+                      // Fallback para Modal Premium se não tiver Twilio configurado ou falhar
+                      console.log("Call fallback:", err);
+                      setTimeout(() => {
+                          setActiveCall(null);
+                          setPremiumFeatureName('Ligação Autônoma Real');
+                          setIsPremiumModalOpen(true);
+                      }, 2000);
+                  }
+              } else {
+                  alert(`Não encontrei o número de ${command.contact}. Por favor, adicione em Família.`);
+                  setActiveView('family');
+              }
           }
 
       } catch (e) {
