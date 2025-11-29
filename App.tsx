@@ -59,7 +59,8 @@ const App: React.FC = () => {
   // --- Premium / Call Simulation State ---
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
   const [premiumFeatureName, setPremiumFeatureName] = useState('');
-  const [activeCall, setActiveCall] = useState<{ contact: string, status: string } | null>(null);
+  // Call State atualizado para incluir o SID da chamada
+  const [activeCall, setActiveCall] = useState<{ contact: string, status: string, sid?: string, color?: string } | null>(null);
   
   // --- Voice Session Refs ---
   const sessionRef = useRef<Promise<Session> | null>(null);
@@ -69,8 +70,35 @@ const App: React.FC = () => {
   const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null);
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const nextStartTimeRef = useRef<number>(0);
-  // Ref para acumular o texto da transcrição durante a fala da IA
   const currentResponseTextRef = useRef<string>('');
+
+  // --- Polling de Status da Chamada ---
+  useEffect(() => {
+    let interval: any;
+    if (activeCall && activeCall.sid) {
+        interval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/twilio-status?sid=${activeCall.sid}`);
+                const data = await res.json();
+                
+                if (data.status === 'in-progress') {
+                    setActiveCall(prev => prev ? { ...prev, status: 'Conectado! Em conversa.', color: 'bg-green-600' } : null);
+                } else if (data.status === 'completed') {
+                    setActiveCall(prev => prev ? { ...prev, status: 'Chamada Finalizada.', color: 'bg-gray-800' } : null);
+                    clearInterval(interval);
+                    setTimeout(() => setActiveCall(null), 3000);
+                } else if (['busy', 'failed', 'no-answer'].includes(data.status)) {
+                    setActiveCall(prev => prev ? { ...prev, status: `Não atendeu (${data.status})`, color: 'bg-red-600' } : null);
+                    clearInterval(interval);
+                    setTimeout(() => setActiveCall(null), 4000);
+                }
+            } catch (e) {
+                console.error("Erro no polling:", e);
+            }
+        }, 2000); // Verifica a cada 2 segundos
+    }
+    return () => clearInterval(interval);
+  }, [activeCall?.sid]);
 
   // --- Initialization ---
   useEffect(() => {
@@ -106,28 +134,20 @@ const App: React.FC = () => {
   const findContactNumber = (name: string): string | null => {
       try {
           const saved = localStorage.getItem('familyContacts');
-          // Contatos padrão se não houver salvos
           const defaultContacts: Contact[] = [
             { id: 1, name: 'Cris', relationship: 'Esposa', phone: '5511999999999', whatsapp: '5511999999999', email: 'cris@email.com' },
             { id: 2, name: 'Filho', relationship: 'Filho', phone: '5511988888888', whatsapp: '5511988888888', email: '' }
           ];
           
           const contacts: Contact[] = saved ? JSON.parse(saved) : defaultContacts;
-          
-          // Busca simples (case insensitive) e parcial
           const contact = contacts.find(c => c.name.toLowerCase().includes(name.toLowerCase()));
           
           if (!contact) return null;
 
-          // Limpeza rigorosa para formato E.164 (ex: +5511999999999)
-          // Remove tudo que não for número ou +
           let cleanNumber = contact.phone.replace(/[^0-9+]/g, '');
-          
-          // Se não tiver +, assume que é BR e adiciona +55 (fallback simples)
           if (!cleanNumber.startsWith('+')) {
               cleanNumber = '+55' + cleanNumber;
           }
-          
           return cleanNumber;
       } catch {
           return null;
@@ -144,13 +164,9 @@ const App: React.FC = () => {
               const contactNumber = findContactNumber(command.contact);
               
               if (contactNumber) {
-                  // Remove o '+' para o link do WhatsApp, pois wa.me prefere apenas números
                   const waNumber = contactNumber.replace('+', '');
                   const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(command.message)}`;
-                  
-                  setTimeout(() => {
-                      window.open(url, '_blank');
-                  }, 2000);
+                  setTimeout(() => window.open(url, '_blank'), 2000);
               } else {
                   console.warn(`Contato não encontrado: ${command.contact}`);
                   setTimeout(() => setActiveView('family'), 2000);
@@ -161,11 +177,10 @@ const App: React.FC = () => {
               const contactName = command.contact;
 
               if (contactNumber) {
-                  // 1. Mostrar feedback visual imediato (Inicia o estado de chamada)
-                  setActiveCall({ contact: contactName, status: 'Iniciando discagem...' });
+                  // Inicia estado visual
+                  setActiveCall({ contact: contactName, status: 'Iniciando discagem...', color: 'bg-black' });
 
                   try {
-                      // 2. Tentar chamar o Backend Serverless (Twilio)
                       const response = await fetch('/api/twilio-webhook', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
@@ -178,22 +193,24 @@ const App: React.FC = () => {
                       const data = await response.json();
 
                       if (data.mode === 'real') {
-                          // Sucesso Real (Twilio configurado)
-                          setActiveCall({ contact: contactName, status: 'Chamando via Rede Telefônica...' });
-                          setTimeout(() => setActiveCall(null), 10000); // Fecha após 10s
+                          // Sucesso Real: Salva o SID para monitorar o status
+                          setActiveCall({ 
+                              contact: contactName, 
+                              status: 'Chamando via Rede Telefônica...', 
+                              sid: data.sid, 
+                              color: 'bg-yellow-900' // Amarelo enquanto chama
+                          });
                       } else {
-                          // Modo Simulação (Sem chaves ou erro no backend)
-                          // Para BETA: Mostramos que está chamando mesmo sendo simulação, para o usuário ver a feature.
+                          // Modo Simulação
                           console.log("Modo Simulação Ativo:", data);
-                          setActiveCall({ contact: contactName, status: 'Simulando Chamada (Modo Beta)...' });
+                          setActiveCall({ contact: contactName, status: 'Simulando Chamada (Modo Beta)...', color: 'bg-blue-900' });
                           setTimeout(() => setActiveCall(null), 6000);
                       }
 
                   } catch (err) {
-                      // Se o fetch falhar (ex: erro de rede), ainda mostramos a UI de chamada
                       console.log("Call request error:", err);
-                      setActiveCall({ contact: contactName, status: 'Conectando...' });
-                      setTimeout(() => setActiveCall(null), 5000);
+                      setActiveCall({ contact: contactName, status: 'Erro na conexão.', color: 'bg-red-900' });
+                      setTimeout(() => setActiveCall(null), 4000);
                   }
               } else {
                   alert(`Não encontrei o número de ${command.contact}. Por favor, adicione em Família.`);
@@ -225,11 +242,9 @@ const App: React.FC = () => {
       const result = await chat.sendMessage({ message: userInput });
       const responseText = result.text;
       
-      // Verifica se há comando JSON oculto na resposta
       const jsonMatch = responseText.match(/```json([\s\S]*?)```/);
       if (jsonMatch && jsonMatch[1]) {
           executeAICommand(jsonMatch[1]);
-          // Limpar o JSON da mensagem mostrada ao usuário
           const cleanText = responseText.replace(/```json[\s\S]*?```/, '').trim();
           if (cleanText) {
               const modelMessage: Message = { id: Date.now() + 1, role: 'model', content: cleanText };
@@ -335,7 +350,7 @@ const App: React.FC = () => {
       
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
       
-      // CONFIGURAÇÃO DE SAUDAÇÃO INICIAL SEGURA
+      // INSTRUÇÃO DE SAUDAÇÃO (Mantida)
       const currentUser = localStorage.getItem('async_user') || 'Usuário';
       const greetingInstruction = `
         ${SYSTEM_INSTRUCTION}
@@ -463,19 +478,19 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen font-sans overflow-hidden relative">
-      {/* SIMULAÇÃO DE CHAMADA (Overlay) */}
+      {/* OVERLAY DE CHAMADA COM STATUS DINÂMICO */}
       {activeCall && (
-          <div className="fixed inset-0 z-[60] bg-black flex flex-col items-center justify-center text-white animate-in fade-in duration-300">
-              <div className="w-32 h-32 rounded-full bg-gray-800 flex items-center justify-center mb-8 animate-pulse">
-                  <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center text-3xl font-bold">
+          <div className={`fixed inset-0 z-[60] flex flex-col items-center justify-center text-white animate-in fade-in duration-300 transition-colors ${activeCall.color || 'bg-black'}`}>
+              <div className="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center mb-8 animate-pulse shadow-xl">
+                  <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center text-3xl font-bold backdrop-blur-sm">
                       {activeCall.contact.charAt(0)}
                   </div>
               </div>
-              <h2 className="text-3xl font-bold mb-2">{activeCall.contact}</h2>
-              <p className="text-lg text-emerald-400 animate-pulse">{activeCall.status}</p>
+              <h2 className="text-4xl font-bold mb-4">{activeCall.contact}</h2>
+              <p className="text-xl font-medium tracking-wide animate-pulse">{activeCall.status}</p>
               
-              <div className="mt-12 flex gap-8">
-                  <button className="p-4 rounded-full bg-red-600 hover:bg-red-700 transition-transform hover:scale-110" onClick={() => setActiveCall(null)}>
+              <div className="mt-16 flex gap-8">
+                  <button className="p-5 rounded-full bg-red-600 hover:bg-red-700 transition-transform hover:scale-110 shadow-lg" onClick={() => setActiveCall(null)}>
                       <PhoneIcon />
                   </button>
               </div>
