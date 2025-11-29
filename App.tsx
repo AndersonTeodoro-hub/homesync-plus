@@ -335,14 +335,25 @@ const App: React.FC = () => {
       
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
       
-      // RESTAURADO: Usamos a instrução de sistema padrão para máxima estabilidade
+      // CONFIGURAÇÃO DE SAUDAÇÃO INICIAL SEGURA (SEM session.send)
+      // Instruímos o modelo a iniciar a conversa diretamente na configuração
+      const currentUser = localStorage.getItem('async_user') || 'Usuário';
+      const greetingInstruction = `
+        ${SYSTEM_INSTRUCTION}
+        
+        [IMPORTANT: STARTUP PROTOCOL]
+        You must INITIATE the conversation immediately upon connection.
+        Do NOT wait for the user to speak.
+        Say exactly: "Olá ${currentUser}! O que vamos fazer agora?" in a warm, welcoming tone.
+      `;
+
       sessionRef.current = ai.live.connect({
           model: LIVE_MODEL_NAME,
           config: {
               responseModalities: [Modality.AUDIO],
               inputAudioTranscription: {},
               outputAudioTranscription: {},
-              systemInstruction: SYSTEM_INSTRUCTION,
+              systemInstruction: greetingInstruction, // Instrução modificada aqui
           },
           callbacks: {
               onopen: () => {

@@ -15,7 +15,8 @@ import {
     LearnIcon,
     HeartIcon,
     CameraIcon,
-    SparklesIcon
+    SparklesIcon,
+    FamilyIcon // Importando ícone de Família
 } from './Icons';
 
 type AppState = 'sleeping' | 'active';
@@ -128,13 +129,13 @@ export const Home: React.FC<HomeProps> = ({
                 {appState === 'sleeping' && (
                     <div className="flex items-center justify-center gap-6 w-full">
                         
-                        {/* Texto */}
+                        {/* Botão de Família (Contatos) - Substituiu o Texto */}
                         <button 
-                            onClick={() => setView('text-chat')} 
+                            onClick={() => setView('family')} 
                             className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
-                            aria-label="Abrir Chat de Texto"
+                            aria-label="Gerenciar Contatos da Família"
                         >
-                            <KeyboardIcon /> 
+                            <FamilyIcon /> 
                         </button>
                         
                         {/* Main Mic Button */}

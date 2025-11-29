@@ -14,10 +14,10 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
     return (
       <div className="w-full h-full flex items-center justify-center">
         {/* 
-           AVATAR OFICIAL EM SVG (VETOR) - VERSÃO ESTÁVEL
-           - Visual: Cápsula Azul Bebê (Corpo) + Círculo Branco (Rosto)
-           - Animação: Flutuação e Sincronização Labial
-           - Não depende de imagens externas (PNG/JPG)
+           AVATAR OFICIAL EM SVG (VETOR) - VERSÃO DEFINITIVA
+           Visual: Cápsula Azul Bebê (Corpo) + Círculo Branco (Rosto)
+           Funcionalidade: Sincronização Labial, Piscar, Respiração.
+           Vantagem: Não quebra, não precisa de imagens PNG.
         */}
         <svg 
           viewBox="0 0 200 340" 
@@ -27,7 +27,7 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
           style={{ overflow: 'visible' }}
         >
           <defs>
-            {/* GRADIENTE DO CORPO (Azul Suave) */}
+            {/* GRADIENTE DO CORPO (Azul Suave Premium) */}
             <linearGradient id="bodyGradient" x1="100" y1="0" x2="100" y2="340" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#E0F2FE" />
               <stop offset="100%" stopColor="#7DD3FC" />
@@ -39,7 +39,7 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
                 <stop offset="100%" stopColor="#F1F5F9" />
             </radialGradient>
 
-            {/* Sombra suave para destacar a cabeça do corpo */}
+            {/* Sombra para destacar a cabeça do corpo (Efeito 3D) */}
             <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
               <feOffset dx="0" dy="4" />
