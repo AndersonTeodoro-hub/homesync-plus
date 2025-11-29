@@ -58,14 +58,14 @@ export const Home: React.FC<HomeProps> = ({
       }
   };
 
-  // Módulos Principais (CTA)
+  // Módulos Principais (CTA) - Estilo Minimalista
   const mainModules = [
-      { id: 'english-course', label: 'Inglês', icon: <EnglishIcon />, view: 'english-course' as View, color: 'bg-blue-600/20 text-blue-300 border-blue-500/30' },
-      { id: 'babysitter', label: 'Modo Babá', icon: <BabyIcon />, view: 'babysitter' as View, color: 'bg-pink-600/20 text-pink-300 border-pink-500/30' },
-      { id: 'sync-kids', label: 'Kids', icon: <BalloonIcon />, view: 'sync-kids' as View, color: 'bg-yellow-600/20 text-yellow-300 border-yellow-500/30' },
-      { id: 'nutritionist', label: 'Nutri', icon: <NutritionistIcon />, view: 'nutritionist' as View, color: 'bg-green-600/20 text-green-300 border-green-500/30' },
-      { id: 'personal-trainer', label: 'Treino', icon: <PersonalTrainerIcon />, view: 'personal-trainer' as View, color: 'bg-orange-600/20 text-orange-300 border-orange-500/30' },
-      { id: 'essence', label: 'Essência', icon: <HeartIcon />, view: 'essence' as View, color: 'bg-purple-600/20 text-purple-300 border-purple-500/30' },
+      { id: 'english-course', label: 'Inglês', icon: <EnglishIcon />, view: 'english-course' as View, color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
+      { id: 'babysitter', label: 'Babá', icon: <BabyIcon />, view: 'babysitter' as View, color: 'bg-pink-500/10 text-pink-300 border-pink-500/20' },
+      { id: 'sync-kids', label: 'Kids', icon: <BalloonIcon />, view: 'sync-kids' as View, color: 'bg-yellow-500/10 text-yellow-300 border-yellow-500/20' },
+      { id: 'nutritionist', label: 'Nutri', icon: <NutritionistIcon />, view: 'nutritionist' as View, color: 'bg-green-500/10 text-green-300 border-green-500/20' },
+      { id: 'personal-trainer', label: 'Treino', icon: <PersonalTrainerIcon />, view: 'personal-trainer' as View, color: 'bg-orange-500/10 text-orange-300 border-orange-500/20' },
+      { id: 'essence', label: 'Essência', icon: <HeartIcon />, view: 'essence' as View, color: 'bg-purple-500/10 text-purple-300 border-purple-500/20' },
   ];
 
     return (
@@ -112,18 +112,18 @@ export const Home: React.FC<HomeProps> = ({
                     </button>
                 </div>
 
-                {/* --- GRID DE MÓDULOS (CTA) --- */}
-                <div className="w-full max-w-md grid grid-cols-3 gap-3 mb-20">
+                {/* --- GRID DE MÓDULOS (CTA Minimalista) --- */}
+                <div className="w-full max-w-sm grid grid-cols-3 gap-2 mb-20">
                     {mainModules.map((mod) => (
                         <button
                             key={mod.id}
                             onClick={() => setView(mod.view)}
-                            className={`flex flex-col items-center justify-center p-3 rounded-2xl border backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg ${mod.color}`}
+                            className={`flex flex-col items-center justify-center p-2 rounded-xl border backdrop-blur-sm transition-all duration-200 hover:bg-white/5 hover:scale-105 active:scale-95 ${mod.color}`}
                         >
-                            <div className="w-8 h-8 mb-1">
+                            <div className="w-5 h-5 mb-1 opacity-90">
                                 {mod.icon}
                             </div>
-                            <span className="text-xs font-bold text-white/90">{mod.label}</span>
+                            <span className="text-[10px] font-medium tracking-wide opacity-80">{mod.label}</span>
                         </button>
                     ))}
                 </div>
