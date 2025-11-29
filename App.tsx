@@ -161,7 +161,7 @@ const App: React.FC = () => {
               const contactName = command.contact;
 
               if (contactNumber) {
-                  // 1. Mostrar feedback visual imediato
+                  // 1. Mostrar feedback visual imediato (Inicia o estado de chamada)
                   setActiveCall({ contact: contactName, status: 'Iniciando discagem...' });
 
                   try {
@@ -180,20 +180,20 @@ const App: React.FC = () => {
                       if (data.mode === 'real') {
                           // Sucesso Real (Twilio configurado)
                           setActiveCall({ contact: contactName, status: 'Chamando via Rede Telefônica...' });
-                          setTimeout(() => setActiveCall(null), 5000); // Fecha após 5s
+                          setTimeout(() => setActiveCall(null), 10000); // Fecha após 10s
                       } else {
-                          // Modo Simulação (Sem chaves ou erro) -> Jogar para Premium
-                          throw new Error('Simulation Mode');
+                          // Modo Simulação (Sem chaves ou erro no backend)
+                          // Para BETA: Mostramos que está chamando mesmo sendo simulação, para o usuário ver a feature.
+                          console.log("Modo Simulação Ativo:", data);
+                          setActiveCall({ contact: contactName, status: 'Simulando Chamada (Modo Beta)...' });
+                          setTimeout(() => setActiveCall(null), 6000);
                       }
 
                   } catch (err) {
-                      // Fallback para Modal Premium se não tiver Twilio configurado ou falhar
-                      console.log("Call fallback:", err);
-                      setTimeout(() => {
-                          setActiveCall(null);
-                          setPremiumFeatureName('Ligação Autônoma Real');
-                          setIsPremiumModalOpen(true);
-                      }, 2000);
+                      // Se o fetch falhar (ex: erro de rede), ainda mostramos a UI de chamada
+                      console.log("Call request error:", err);
+                      setActiveCall({ contact: contactName, status: 'Conectando...' });
+                      setTimeout(() => setActiveCall(null), 5000);
                   }
               } else {
                   alert(`Não encontrei o número de ${command.contact}. Por favor, adicione em Família.`);
@@ -335,8 +335,7 @@ const App: React.FC = () => {
       
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
       
-      // CONFIGURAÇÃO DE SAUDAÇÃO INICIAL SEGURA (SEM session.send)
-      // Instruímos o modelo a iniciar a conversa diretamente na configuração
+      // CONFIGURAÇÃO DE SAUDAÇÃO INICIAL SEGURA
       const currentUser = localStorage.getItem('async_user') || 'Usuário';
       const greetingInstruction = `
         ${SYSTEM_INSTRUCTION}
@@ -353,7 +352,7 @@ const App: React.FC = () => {
               responseModalities: [Modality.AUDIO],
               inputAudioTranscription: {},
               outputAudioTranscription: {},
-              systemInstruction: greetingInstruction, // Instrução modificada aqui
+              systemInstruction: greetingInstruction, 
           },
           callbacks: {
               onopen: () => {
@@ -369,16 +368,13 @@ const App: React.FC = () => {
                   scriptProcessorRef.current.connect(inputAudioContextRef.current!.destination);
               },
               onmessage: async (msg) => {
-                  // 1. Acumula a transcrição do que a IA está falando
                   if (msg.serverContent?.outputTranscription?.text) {
                       const text = msg.serverContent.outputTranscription.text;
                       currentResponseTextRef.current += text;
                   }
 
-                  // 2. Se o turno acabou, verifica se houve comando JSON no texto acumulado
                   if (msg.serverContent?.turnComplete) {
                       const fullText = currentResponseTextRef.current;
-                      // Busca por JSON completo ou parcial que possa ter sido quebrado
                       const jsonMatch = fullText.match(/```json([\s\S]*?)```/);
                       
                       if (jsonMatch && jsonMatch[1]) {
@@ -386,7 +382,7 @@ const App: React.FC = () => {
                           executeAICommand(jsonMatch[1]);
                       }
                       
-                      currentResponseTextRef.current = ''; // Limpa para a próxima frase
+                      currentResponseTextRef.current = ''; 
                       setCurrentUserTurn('');
                       setCurrentModelTurn('');
                       if (sourcesRef.current.size === 0) setVoiceState('idle');
@@ -397,7 +393,6 @@ const App: React.FC = () => {
                       setCurrentUserTurn(prev => prev + msg.serverContent.inputTranscription.text);
                   }
                   
-                  // Audio Playback
                   const audioData = msg.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
                   if (audioData) await playAudioData(audioData);
               },
