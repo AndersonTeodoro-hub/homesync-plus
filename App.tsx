@@ -14,7 +14,8 @@ import { Finances } from './components/Finances';
 import { Tasks } from './components/Tasks';
 import { Inventory } from './components/Inventory';
 import { Learning } from './components/Learning';
-import { EnglishCourse } from './components/EnglishCourse'; // NOVO IMPORT
+import { EnglishCourse } from './components/EnglishCourse';
+import { SyncKids } from './components/SyncKids'; // NOVO IMPORT
 import { Essence } from './components/Essence';
 import { Babysitter } from './components/Babysitter';
 import { MenuIcon, PhoneIcon } from './components/Icons';
@@ -69,7 +70,6 @@ const App: React.FC = () => {
   const currentResponseTextRef = useRef<string>('');
 
   // ... (Hooks useEffect e funções auxiliares mantidas)
-  // ... (findContactNumber, executeAICommand, etc)
 
   useEffect(() => {
     let interval: any;
@@ -121,15 +121,12 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // ... (handleLogin, findContactNumber, executeAICommand, handleSendMessage, handleFeedback, playAudioData, stopVoiceSession, startVoiceSession, handleShareApp, handleSetView mantidos)
-
   const handleLogin = (name: string) => {
       localStorage.setItem('async_user', name);
       setUserName(name);
       setIsAuthenticated(true);
   };
 
-  // ... (funções findContactNumber e executeAICommand inalteradas)
   const findContactNumber = (name: string): string | null => {
       try {
           const saved = localStorage.getItem('familyContacts');
@@ -267,8 +264,11 @@ const App: React.FC = () => {
       inputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       outputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+      
+      // MANTENDO A INSTRUÇÃO DE SAUDAÇÃO POIS JÁ ESTAVA FUNCIONANDO EM OUTROS ARQUIVOS, MAS SEM O session.send
       const currentUser = localStorage.getItem('async_user') || 'Usuário';
       const greetingInstruction = `${SYSTEM_INSTRUCTION} \n [IMPORTANT: STARTUP PROTOCOL] You must INITIATE the conversation immediately upon connection. Do NOT wait for the user to speak. Say exactly: "Olá ${currentUser}! O que vamos fazer agora?" in a warm, welcoming tone.`;
+      
       sessionRef.current = ai.live.connect({
           model: LIVE_MODEL_NAME,
           config: { responseModalities: [Modality.AUDIO], inputAudioTranscription: {}, outputAudioTranscription: {}, systemInstruction: greetingInstruction },
@@ -322,7 +322,8 @@ const App: React.FC = () => {
 
   const renderActiveView = () => {
     switch(activeView) {
-        case 'english-course': return <EnglishCourse />; // RENDERIZANDO NOVO COMPONENTE
+        case 'sync-kids': return <SyncKids />; // RENDERIZANDO NOVO COMPONENTE
+        case 'english-course': return <EnglishCourse />;
         case 'dashboard': return <Dashboard setView={handleSetView} />;
         case 'finances': return <Finances />;
         case 'tasks': return <Tasks />;

@@ -2,21 +2,18 @@
 import React, { useMemo, useState } from 'react';
 import type { View } from '../types';
 import { Avatar } from './Avatar';
-import { CapabilitiesModal } from './CapabilitiesModal'; // Importação do Modal
+import { CapabilitiesModal } from './CapabilitiesModal';
 import { 
     MicIcon, 
-    KeyboardIcon, 
-    PlayCircleIcon, 
-    NutritionistIcon, 
-    MoneyIcon,
-    CheckCircleIcon,
-    ShoppingCartIcon,
-    DashboardIcon,
-    LearnIcon,
-    HeartIcon,
     CameraIcon,
     SparklesIcon,
-    FamilyIcon // Importando ícone de Família
+    FamilyIcon,
+    EnglishIcon,
+    BabyIcon,
+    NutritionistIcon,
+    PersonalTrainerIcon,
+    HeartIcon,
+    BalloonIcon
 } from './Icons';
 
 type AppState = 'sleeping' | 'active';
@@ -61,14 +58,14 @@ export const Home: React.FC<HomeProps> = ({
       }
   };
 
+  // --- NOVOS ATALHOS FUNCIONAIS ---
   const bottomShortcuts = [
-      { id: 'nutritionist', icon: <NutritionistIcon />, view: 'nutritionist' as View, color: 'text-yellow-400' },
-      { id: 'essence', icon: <HeartIcon />, view: 'essence' as View, color: 'text-pink-400' },
-      { id: 'learning', icon: <LearnIcon />, view: 'learning' as View, color: 'text-blue-300' },
-      { id: 'dashboard', icon: <DashboardIcon />, view: 'dashboard' as View, color: 'text-purple-400' },
-      { id: 'tasks', icon: <CheckCircleIcon />, view: 'tasks' as View, color: 'text-green-400' },
-      { id: 'shopping', icon: <ShoppingCartIcon />, view: 'shopping' as View, color: 'text-sky-400' },
-      { id: 'finances', icon: <MoneyIcon />, view: 'finances' as View, color: 'text-indigo-400' },
+      { id: 'english-course', icon: <EnglishIcon />, view: 'english-course' as View, color: 'text-blue-300 bg-blue-500/10' },
+      { id: 'babysitter', icon: <BabyIcon />, view: 'babysitter' as View, color: 'text-pink-300 bg-pink-500/10' },
+      { id: 'nutritionist', icon: <NutritionistIcon />, view: 'nutritionist' as View, color: 'text-green-300 bg-green-500/10' },
+      { id: 'personal-trainer', icon: <PersonalTrainerIcon />, view: 'personal-trainer' as View, color: 'text-orange-300 bg-orange-500/10' },
+      { id: 'essence', icon: <HeartIcon />, view: 'essence' as View, color: 'text-purple-300 bg-purple-500/10' },
+      { id: 'sync-kids', icon: <BalloonIcon />, view: 'sync-kids' as View, color: 'text-yellow-300 bg-yellow-500/10' },
   ];
 
     return (
@@ -98,9 +95,8 @@ export const Home: React.FC<HomeProps> = ({
             {/* Main Content (Avatar) */}
             <main className="relative z-10 flex-1 flex flex-col items-center justify-center -mt-2">
                 
-                {/* Avatar Container - SUPER AUMENTADO */}
-                {/* Agora ocupa até 75% da altura da tela e é muito mais largo */}
-                <div className="relative z-20 w-full max-w-lg md:max-w-2xl h-[65vh] md:h-[75vh] max-h-[900px] transition-transform duration-500 flex items-center justify-center p-0">
+                {/* Avatar Container - Grande */}
+                <div className="relative z-20 w-full max-w-lg md:max-w-2xl h-[65vh] md:h-[70vh] max-h-[850px] transition-transform duration-500 flex items-center justify-center p-0">
                     <Avatar role="model" isSleeping={appState === 'sleeping'} voiceState={voiceState} />
                 </div>
                 
@@ -110,7 +106,7 @@ export const Home: React.FC<HomeProps> = ({
                     <span className="text-xs md:text-sm font-semibold text-gray-200 uppercase tracking-wider">{getStatusText()}</span>
                 </div>
 
-                {/* Botão Descubra meus poderes (SHOWCASE) */}
+                {/* Botão Descubra meus poderes */}
                 <button 
                     onClick={() => setIsCapabilitiesOpen(true)}
                     className="mt-3 flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 hover:border-indigo-400/50 hover:bg-indigo-500/30 transition-all text-[10px] md:text-xs font-medium text-indigo-200 z-20"
@@ -123,13 +119,13 @@ export const Home: React.FC<HomeProps> = ({
             </main>
 
             {/* Bottom Controls Area */}
-            <footer className="relative z-10 pb-6 px-6 flex flex-col items-center gap-6 w-full">
+            <footer className="relative z-10 pb-6 px-4 flex flex-col items-center gap-6 w-full">
                 
                 {/* Primary Actions (Mic & Chat & Vision) */}
                 {appState === 'sleeping' && (
                     <div className="flex items-center justify-center gap-6 w-full">
                         
-                        {/* Botão de Família (Contatos) - Substituiu o Texto */}
+                        {/* Botão de Família (Contatos) */}
                         <button 
                             onClick={() => setView('family')} 
                             className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
@@ -161,16 +157,16 @@ export const Home: React.FC<HomeProps> = ({
                     </div>
                 )}
 
-                {/* Bottom Dock Shortcuts */}
-                <div className="w-full max-w-lg bg-[#0f172a]/80 backdrop-blur-xl border-t border-white/5 rounded-t-3xl rounded-b-xl p-3 md:p-4 flex justify-between items-center shadow-2xl">
+                {/* Bottom Dock Shortcuts - UPDATED WITH MODULES */}
+                <div className="w-full max-w-lg bg-[#0f172a]/90 backdrop-blur-xl border-t border-white/10 rounded-2xl p-2 md:p-3 flex justify-around items-center shadow-2xl gap-2">
                     {bottomShortcuts.map((shortcut) => (
                         <button 
                             key={shortcut.id}
                             onClick={() => setView(shortcut.view)}
-                            className={`p-1.5 md:p-2 rounded-xl hover:bg-white/5 transition-all duration-200 relative group flex flex-col items-center gap-1 ${shortcut.color}`}
+                            className={`p-2 md:p-3 rounded-xl transition-all duration-200 relative group flex flex-col items-center gap-1 hover:scale-110 ${shortcut.color}`}
                             aria-label={shortcut.id}
                         >
-                            <div className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center opacity-80 group-hover:opacity-100 transform group-hover:scale-110 transition-transform">
+                            <div className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center">
                                 {shortcut.icon}
                             </div>
                         </button>
@@ -178,7 +174,6 @@ export const Home: React.FC<HomeProps> = ({
                 </div>
             </footer>
 
-            {/* Modal de Habilidades */}
             <CapabilitiesModal isOpen={isCapabilitiesOpen} onClose={() => setIsCapabilitiesOpen(false)} />
         </div>
     );

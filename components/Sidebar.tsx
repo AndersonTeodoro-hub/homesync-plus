@@ -1,7 +1,7 @@
 
 import React from 'react';
 import type { View } from '../types';
-import { HomeIcon, DashboardIcon, FinanceIcon, CheckCircleIcon, ShoppingCartIcon, InventoryIcon, TextAiIcon, HeartIcon, LearnIcon, EnglishIcon, EmergencyIcon, FamilyIcon, NutritionistIcon, PersonalTrainerIcon, ShareAppIcon, MessageIcon, AsyncLogoIcon } from './Icons';
+import { HomeIcon, DashboardIcon, FinanceIcon, CheckCircleIcon, ShoppingCartIcon, InventoryIcon, TextAiIcon, HeartIcon, LearnIcon, EnglishIcon, EmergencyIcon, FamilyIcon, NutritionistIcon, PersonalTrainerIcon, ShareAppIcon, MessageIcon, AsyncLogoIcon, BalloonIcon, BabyIcon } from './Icons';
 
 interface SidebarProps {
   activeView: View;
@@ -17,7 +17,9 @@ const menuItems = [
   { id: 'shopping', label: 'Compras', icon: <ShoppingCartIcon /> },
   { id: 'inventory', label: 'Inventário', icon: <InventoryIcon /> },
   { id: 'text-chat', label: 'Sync (IA Texto)', icon: <TextAiIcon />, tags: ['AI'] },
-  { id: 'english-course', label: 'Sync English', icon: <EnglishIcon />, tags: ['NOVO'] }, // NOVO ITEM
+  { id: 'english-course', label: 'Sync English', icon: <EnglishIcon />, tags: ['NOVO'] }, 
+  { id: 'sync-kids', label: 'Sync Kids', icon: <BalloonIcon />, tags: ['KIDS'] }, // NOVO ITEM
+  { id: 'babysitter', label: 'Modo Babá', icon: <BabyIcon />, tags: ['KIDS'] },
   { id: 'nutritionist', label: 'Nutricionista', icon: <NutritionistIcon />, tags: ['AI'] },
   { id: 'personal-trainer', label: 'Personal Trainer', icon: <PersonalTrainerIcon />, tags: ['AI'] },
   { id: 'essence', label: 'Essência', icon: <HeartIcon /> },
@@ -63,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setView, onShareAp
                    <span key={tag} className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
                      tag === 'VOZ' ? 'bg-violet-200 text-violet-800' : 
                      tag === 'NOVO' ? 'bg-pink-100 text-pink-600' :
+                     tag === 'KIDS' ? 'bg-orange-100 text-orange-600' :
                      'bg-cyan-200 text-cyan-800'
                    }`}>{tag}</span>
                 ))}

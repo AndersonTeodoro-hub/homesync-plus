@@ -28,7 +28,9 @@ export type View =
   | 'essence'
   | 'learning'
   | 'english-course'
+  | 'sync-kids' // NOVO
   | 'emergency'
   | 'family'
   | 'nutritionist'
+  | 'babysitter' // Garantindo que babysitter esteja aqui
   | 'personal-trainer';
