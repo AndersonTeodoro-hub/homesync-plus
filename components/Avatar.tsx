@@ -14,10 +14,9 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
     return (
       <div className="w-full h-full flex items-center justify-center">
         {/* 
-           AVATAR OFICIAL EM SVG (VETOR) - VERSÃO DEFINITIVA
+           AVATAR OFICIAL EM SVG (VETOR) - VERSÃO ESTÁVEL
            Visual: Cápsula Azul Bebê (Corpo) + Círculo Branco (Rosto)
-           Funcionalidade: Sincronização Labial, Piscar, Respiração.
-           Vantagem: Não quebra, não precisa de imagens PNG.
+           Funcionalidade: Sincronização Labial simulada via CSS.
         */}
         <svg 
           viewBox="0 0 200 340" 
@@ -27,19 +26,19 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
           style={{ overflow: 'visible' }}
         >
           <defs>
-            {/* GRADIENTE DO CORPO (Azul Suave Premium) */}
+            {/* Gradiente do Corpo */}
             <linearGradient id="bodyGradient" x1="100" y1="0" x2="100" y2="340" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#E0F2FE" />
               <stop offset="100%" stopColor="#7DD3FC" />
             </linearGradient>
 
-            {/* GRADIENTE DO ROSTO (Branco Puro com leve profundidade) */}
+            {/* Gradiente do Rosto */}
             <radialGradient id="faceGradient" cx="0.5" cy="0.5" r="0.5">
                 <stop offset="85%" stopColor="#FFFFFF" />
                 <stop offset="100%" stopColor="#F1F5F9" />
             </radialGradient>
 
-            {/* Sombra para destacar a cabeça do corpo (Efeito 3D) */}
+            {/* Sombra e Blur */}
             <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
               <feOffset dx="0" dy="4" />
@@ -52,7 +51,6 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
               </feMerge>
             </filter>
 
-            {/* Blur das Bochechas */}
             <filter id="blushBlur" x="-50%" y="-50%" width="200%" height="200%">
                <feGaussianBlur in="SourceGraphic" stdDeviation="6" />
             </filter>
@@ -60,19 +58,16 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
 
           <style>
             {`
-              /* Flutuação Suave (Respiração) */
               @keyframes float {
                 0%, 100% { transform: translateY(0px); }
                 50% { transform: translateY(-6px); }
               }
               
-              /* Piscar de Olhos */
               @keyframes blink {
                 0%, 96%, 100% { transform: scaleY(1); }
                 98% { transform: scaleY(0.1); }
               }
 
-              /* SINCRONIZAÇÃO LABIAL (LIP SYNC) */
               @keyframes talkMouth {
                 0%, 100% { transform: scaleY(1) scaleX(1); }
                 25% { transform: scaleY(0.4) scaleX(1.1); }
@@ -93,7 +88,7 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
 
           <g className="avatar-anim">
             
-            {/* 1. CORPO (Cápsula Azul Alongada) */}
+            {/* 1. CORPO */}
             <rect 
                 x="25" y="40" 
                 width="150" height="280" 
@@ -101,7 +96,7 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
                 fill="url(#bodyGradient)" 
             />
 
-            {/* 2. CABEÇA (Círculo Branco Perfeito - Flutuando Acima) */}
+            {/* 2. CABEÇA */}
             <circle 
                 cx="100" cy="100" 
                 r="85" 
@@ -111,23 +106,20 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
 
             {/* 3. ROSTO */}
             <g>
-                {/* Bochechas Rosadas */}
+                {/* Bochechas */}
                 <circle cx="45" cy="115" r="18" fill="#FDA4AF" opacity="0.6" filter="url(#blushBlur)" />
                 <circle cx="155" cy="115" r="18" fill="#FDA4AF" opacity="0.6" filter="url(#blushBlur)" />
 
                 {isSleeping ? (
-                    // --- ESTADO: DORMINDO ---
+                    // DORMINDO
                     <g opacity="0.6">
-                        {/* Olhos Fechados (Traços) */}
                         <path d="M 60 100 L 80 100" stroke="#334155" strokeWidth="4" strokeLinecap="round" />
                         <path d="M 120 100 L 140 100" stroke="#334155" strokeWidth="4" strokeLinecap="round" />
-                        {/* Boca Pequena */}
                         <path d="M 96 135 L 104 135" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round" />
                     </g>
                 ) : (
-                    // --- ESTADO: ACORDADA ---
+                    // ACORDADA
                     <g>
-                        {/* Olhos Pretos Grandes */}
                         <g fill="#0F172A">
                             <ellipse cx="70" cy="95" rx="12" ry="16" style={{ transformOrigin: '70px 95px', animation: 'blink 4s infinite' }}>
                                 <circle cx="74" cy="90" r="4" fill="white" />
@@ -137,13 +129,10 @@ export const Avatar: React.FC<AvatarProps> = ({ role, isSleeping = false, voiceS
                             </ellipse>
                         </g>
 
-                        {/* BOCA DINÂMICA */}
                         <g className="mouth-anim" style={isSpeaking ? { animation: 'talkMouth 0.3s ease-in-out infinite' } : {}}>
                             {isSpeaking ? (
-                                // Boca Aberta (Falando)
                                 <rect x="92" y="132" width="16" height="8" rx="4" fill="#334155" />
                             ) : (
-                                // Boca Fechada (Traço Curto)
                                 <path 
                                     d="M 95 138 L 105 138" 
                                     stroke="#334155" 

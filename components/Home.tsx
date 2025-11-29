@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import type { View } from '../types';
 import { Avatar } from './Avatar';
 import { CapabilitiesModal } from './CapabilitiesModal';
@@ -58,22 +58,20 @@ export const Home: React.FC<HomeProps> = ({
       }
   };
 
-  // --- NOVOS ATALHOS FUNCIONAIS ---
-  const bottomShortcuts = [
-      { id: 'english-course', icon: <EnglishIcon />, view: 'english-course' as View, color: 'text-blue-300 bg-blue-500/10' },
-      { id: 'babysitter', icon: <BabyIcon />, view: 'babysitter' as View, color: 'text-pink-300 bg-pink-500/10' },
-      { id: 'nutritionist', icon: <NutritionistIcon />, view: 'nutritionist' as View, color: 'text-green-300 bg-green-500/10' },
-      { id: 'personal-trainer', icon: <PersonalTrainerIcon />, view: 'personal-trainer' as View, color: 'text-orange-300 bg-orange-500/10' },
-      { id: 'essence', icon: <HeartIcon />, view: 'essence' as View, color: 'text-purple-300 bg-purple-500/10' },
-      { id: 'sync-kids', icon: <BalloonIcon />, view: 'sync-kids' as View, color: 'text-yellow-300 bg-yellow-500/10' },
+  // Módulos Principais (CTA)
+  const mainModules = [
+      { id: 'english-course', label: 'Inglês', icon: <EnglishIcon />, view: 'english-course' as View, color: 'bg-blue-600/20 text-blue-300 border-blue-500/30' },
+      { id: 'babysitter', label: 'Modo Babá', icon: <BabyIcon />, view: 'babysitter' as View, color: 'bg-pink-600/20 text-pink-300 border-pink-500/30' },
+      { id: 'sync-kids', label: 'Kids', icon: <BalloonIcon />, view: 'sync-kids' as View, color: 'bg-yellow-600/20 text-yellow-300 border-yellow-500/30' },
+      { id: 'nutritionist', label: 'Nutri', icon: <NutritionistIcon />, view: 'nutritionist' as View, color: 'bg-green-600/20 text-green-300 border-green-500/30' },
+      { id: 'personal-trainer', label: 'Treino', icon: <PersonalTrainerIcon />, view: 'personal-trainer' as View, color: 'bg-orange-600/20 text-orange-300 border-orange-500/30' },
+      { id: 'essence', label: 'Essência', icon: <HeartIcon />, view: 'essence' as View, color: 'bg-purple-600/20 text-purple-300 border-purple-500/30' },
   ];
 
     return (
         <div className="flex flex-col h-full relative overflow-hidden bg-[#0a0e17] text-white font-sans selection:bg-pink-500 selection:text-white">
-            {/* Background Effects - Darker Navy */}
+            {/* Background Effects */}
             <div className="absolute inset-0 bg-gradient-to-b from-[#1e293b] to-[#0f172a] pointer-events-none" />
-            
-            {/* Soft Ambient Light */}
             <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[60%] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
             
             {/* Beta Badge */}
@@ -85,94 +83,84 @@ export const Home: React.FC<HomeProps> = ({
             </div>
             
             {/* Header */}
-            <header className="relative z-10 pt-6 pb-1 text-center">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 flex items-center justify-center gap-2 text-white">
+            <header className="relative z-10 pt-4 pb-1 text-center">
+                <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2 text-white">
                     <span className="text-pink-500">★</span> Async <span className="text-pink-500 font-light">+</span>
                 </h1>
-                <p className="text-slate-400 text-[10px] md:text-xs font-medium tracking-wide uppercase opacity-80">Sua companhia inteligente</p>
             </header>
 
-            {/* Main Content (Avatar) */}
-            <main className="relative z-10 flex-1 flex flex-col items-center justify-center -mt-2">
+            {/* Main Content Area */}
+            <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-4 px-4 overflow-y-auto custom-scrollbar">
                 
-                {/* Avatar Container - Grande */}
-                <div className="relative z-20 w-full max-w-lg md:max-w-2xl h-[65vh] md:h-[70vh] max-h-[850px] transition-transform duration-500 flex items-center justify-center p-0">
+                {/* Avatar Area */}
+                <div className="relative z-20 w-full max-w-[280px] h-[320px] flex-shrink-0 flex items-center justify-center mb-2">
                     <Avatar role="model" isSleeping={appState === 'sleeping'} voiceState={voiceState} />
                 </div>
                 
-                {/* Status Pill */}
-                <div className="mt-2 px-5 py-1.5 bg-white/5 border border-white/10 rounded-full flex items-center gap-2 shadow-xl z-20 backdrop-blur-md">
-                    <span className="text-base animate-pulse">{getStatusEmoji()}</span>
-                    <span className="text-xs md:text-sm font-semibold text-gray-200 uppercase tracking-wider">{getStatusText()}</span>
+                {/* Status & Powers */}
+                <div className="flex flex-col items-center gap-2 mb-6">
+                    <div className="px-4 py-1 bg-white/5 border border-white/10 rounded-full flex items-center gap-2 shadow-sm backdrop-blur-md">
+                        <span className="text-sm animate-pulse">{getStatusEmoji()}</span>
+                        <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">{getStatusText()}</span>
+                    </div>
+                    <button 
+                        onClick={() => setIsCapabilitiesOpen(true)}
+                        className="flex items-center gap-1.5 text-[10px] text-indigo-300 hover:text-white transition-colors"
+                    >
+                        <SparklesIcon />
+                        <span>Ver poderes</span>
+                    </button>
                 </div>
 
-                {/* Botão Descubra meus poderes */}
-                <button 
-                    onClick={() => setIsCapabilitiesOpen(true)}
-                    className="mt-3 flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 hover:border-indigo-400/50 hover:bg-indigo-500/30 transition-all text-[10px] md:text-xs font-medium text-indigo-200 z-20"
-                >
-                    <SparklesIcon />
-                    Descubra meus poderes
-                </button>
+                {/* --- GRID DE MÓDULOS (CTA) --- */}
+                <div className="w-full max-w-md grid grid-cols-3 gap-3 mb-20">
+                    {mainModules.map((mod) => (
+                        <button
+                            key={mod.id}
+                            onClick={() => setView(mod.view)}
+                            className={`flex flex-col items-center justify-center p-3 rounded-2xl border backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg ${mod.color}`}
+                        >
+                            <div className="w-8 h-8 mb-1">
+                                {mod.icon}
+                            </div>
+                            <span className="text-xs font-bold text-white/90">{mod.label}</span>
+                        </button>
+                    ))}
+                </div>
                 
-                {error && <div className="mt-4 bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-2 rounded-lg text-sm z-20 max-w-xs text-center">{error}</div>}
+                {error && <div className="mt-2 bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-2 rounded-lg text-xs text-center">{error}</div>}
             </main>
 
-            {/* Bottom Controls Area */}
-            <footer className="relative z-10 pb-6 px-4 flex flex-col items-center gap-6 w-full">
-                
-                {/* Primary Actions (Mic & Chat & Vision) */}
+            {/* Floating Action Bar (Mic & Family & Cam) */}
+            <div className="absolute bottom-6 left-0 right-0 z-30 flex justify-center items-center gap-6 pointer-events-none">
                 {appState === 'sleeping' && (
-                    <div className="flex items-center justify-center gap-6 w-full">
-                        
-                        {/* Botão de Família (Contatos) */}
+                    <div className="flex items-center gap-6 pointer-events-auto">
                         <button 
                             onClick={() => setView('family')} 
-                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
-                            aria-label="Gerenciar Contatos da Família"
+                            className="w-12 h-12 rounded-full bg-[#1e293b]/90 backdrop-blur text-slate-400 hover:text-white hover:bg-[#334155] border border-white/10 shadow-xl flex items-center justify-center transition-all"
                         >
                             <FamilyIcon /> 
                         </button>
                         
-                        {/* Main Mic Button */}
                         <button 
                             onClick={startVoiceSession}
                             className="relative group focus:outline-none"
-                            aria-label="Ativar Voz"
                         >
-                            <div className="absolute inset-0 bg-pink-600 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 animate-pulse"></div>
-                            <div className="relative w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[#ec4899] to-[#be185d] rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-200 border-[4px] border-[#0f172a]">
-                                <MicIcon className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-sm" />
+                            <div className="absolute inset-0 bg-pink-600 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity animate-pulse"></div>
+                            <div className="relative w-16 h-16 bg-gradient-to-br from-[#ec4899] to-[#be185d] rounded-full flex items-center justify-center shadow-2xl border-[3px] border-[#0f172a] transform group-hover:scale-105 transition-transform">
+                                <MicIcon className="w-7 h-7 text-white" />
                             </div>
                         </button>
 
-                        {/* Câmera / Visão */}
                         <button 
                             onClick={() => setView('inventory')}
-                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1e293b] text-slate-400 hover:text-white hover:bg-[#334155] transition-all duration-200 border border-white/5 shadow-lg flex items-center justify-center"
-                            aria-label="Abrir Visão Computacional"
+                            className="w-12 h-12 rounded-full bg-[#1e293b]/90 backdrop-blur text-slate-400 hover:text-white hover:bg-[#334155] border border-white/10 shadow-xl flex items-center justify-center transition-all"
                         >
                              <CameraIcon />
                         </button>
                     </div>
                 )}
-
-                {/* Bottom Dock Shortcuts - UPDATED WITH MODULES */}
-                <div className="w-full max-w-lg bg-[#0f172a]/90 backdrop-blur-xl border-t border-white/10 rounded-2xl p-2 md:p-3 flex justify-around items-center shadow-2xl gap-2">
-                    {bottomShortcuts.map((shortcut) => (
-                        <button 
-                            key={shortcut.id}
-                            onClick={() => setView(shortcut.view)}
-                            className={`p-2 md:p-3 rounded-xl transition-all duration-200 relative group flex flex-col items-center gap-1 hover:scale-110 ${shortcut.color}`}
-                            aria-label={shortcut.id}
-                        >
-                            <div className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center">
-                                {shortcut.icon}
-                            </div>
-                        </button>
-                    ))}
-                </div>
-            </footer>
+            </div>
 
             <CapabilitiesModal isOpen={isCapabilitiesOpen} onClose={() => setIsCapabilitiesOpen(false)} />
         </div>
