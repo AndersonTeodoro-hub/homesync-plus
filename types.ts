@@ -27,6 +27,7 @@ export type View =
   | 'text-chat'
   | 'essence'
   | 'learning'
+  | 'english-course'
   | 'emergency'
   | 'family'
   | 'nutritionist'

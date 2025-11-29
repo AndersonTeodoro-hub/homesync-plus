@@ -1,8 +1,7 @@
 
 import React from 'react';
-// Fix: Correctly import View type and necessary icons.
 import type { View } from '../types';
-import { HomeIcon, DashboardIcon, FinanceIcon, CheckCircleIcon, ShoppingCartIcon, InventoryIcon, TextAiIcon, HeartIcon, LearnIcon, EmergencyIcon, FamilyIcon, NutritionistIcon, PersonalTrainerIcon, ShareAppIcon, MessageIcon, AsyncLogoIcon } from './Icons';
+import { HomeIcon, DashboardIcon, FinanceIcon, CheckCircleIcon, ShoppingCartIcon, InventoryIcon, TextAiIcon, HeartIcon, LearnIcon, EnglishIcon, EmergencyIcon, FamilyIcon, NutritionistIcon, PersonalTrainerIcon, ShareAppIcon, MessageIcon, AsyncLogoIcon } from './Icons';
 
 interface SidebarProps {
   activeView: View;
@@ -11,7 +10,6 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  // Fix: Use correct icon components for each menu item.
   { id: 'home', label: 'Async+ (Início)', icon: <HomeIcon />, tags: ['VOZ'] },
   { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
   { id: 'finances', label: 'Finanças', icon: <FinanceIcon /> },
@@ -19,6 +17,7 @@ const menuItems = [
   { id: 'shopping', label: 'Compras', icon: <ShoppingCartIcon /> },
   { id: 'inventory', label: 'Inventário', icon: <InventoryIcon /> },
   { id: 'text-chat', label: 'Sync (IA Texto)', icon: <TextAiIcon />, tags: ['AI'] },
+  { id: 'english-course', label: 'Sync English', icon: <EnglishIcon />, tags: ['NOVO'] }, // NOVO ITEM
   { id: 'nutritionist', label: 'Nutricionista', icon: <NutritionistIcon />, tags: ['AI'] },
   { id: 'personal-trainer', label: 'Personal Trainer', icon: <PersonalTrainerIcon />, tags: ['AI'] },
   { id: 'essence', label: 'Essência', icon: <HeartIcon /> },
@@ -62,7 +61,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setView, onShareAp
               <div className="flex space-x-1">
                 {item.tags.map(tag => (
                    <span key={tag} className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
-                     tag === 'VOZ' ? 'bg-violet-200 text-violet-800' : 'bg-cyan-200 text-cyan-800'
+                     tag === 'VOZ' ? 'bg-violet-200 text-violet-800' : 
+                     tag === 'NOVO' ? 'bg-pink-100 text-pink-600' :
+                     'bg-cyan-200 text-cyan-800'
                    }`}>{tag}</span>
                 ))}
               </div>
@@ -72,7 +73,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, setView, onShareAp
       </nav>
 
       <div className="p-4 border-t border-gray-200 mt-auto space-y-4">
-        {/* Feedback Button for Beta Testers - Highlighted */}
         <a 
             href="mailto:anderson.teodoro@gmail.com?subject=Feedback Async+ Beta"
             className="flex items-center justify-center space-x-2 w-full p-2.5 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-700 transition-colors border border-yellow-200 text-sm font-semibold shadow-sm"
