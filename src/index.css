@@ -1,0 +1,77 @@
+/* =======================
+   AVATAR VIVO — SYNC
+   ======================= */
+
+/* ==== OLHOS ==== */
+
+.eye {
+  width: 45%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 4%;
+  transition: transform 0.15s ease;
+}
+
+#sync-eyes.blink .eye {
+  transform: scaleY(0.1);
+}
+
+/* ==== BOCA (LIP SYNC BÁSICO) ==== */
+
+.mouth {
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 50%;
+  transition: transform 0.12s ease;
+}
+
+.mouth.talking {
+  transform: scaleY(0.35);
+}
+
+/* ==== AURA HOLOGRÁFICA ==== */
+
+.aura-speaking {
+  box-shadow: 0 0 35px rgba(0, 132, 255, 0.9),
+              inset 0 0 20px rgba(0, 132, 255, 0.8);
+}
+
+.aura-thinking {
+  box-shadow: 0 0 40px rgba(0, 255, 183, 0.7),
+              inset 0 0 22px rgba(0, 255, 183, 0.6);
+}
+
+/* ==== PRESENÇA VIVA ==== */
+
+.relative {
+  animation: breathing 6s ease-in-out infinite;
+}
+
+@keyframes breathing {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* ==== ANIMAÇÕES DO AVATAR (TAILWIND) ==== */
+
+@keyframes syncListen {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-sync-listen {
+  animation: syncListen 1.6s ease-in-out infinite;
+}
+
+@keyframes syncTalk {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+.animate-sync-talk {
+  animation: syncTalk 1s ease-in-out infinite;
+}
