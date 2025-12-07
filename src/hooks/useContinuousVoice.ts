@@ -15,32 +15,32 @@ export default function useContinuousVoice(onTranscript: (text: string) => void)
     recognition.interimResults = false;
     recognition.lang = "pt-PT";
 
-    recognition.onstart = () => setListening(true);
+    recognition.onstart = () => {
+      setListening(true);
+      console.log("Voz contínua iniciada.");
+    };
 
     recognition.onresult = (event: any) => {
-      const result = event.results[event.results.length - 1][0].transcript;
-      onTranscript(result); // envia texto para a IA
+      const transcript = event.results[event.results.length - 1][0].transcript;
+      onTranscript(transcript);
     };
 
     recognition.onerror = (err: any) => {
       console.error("Erro no reconhecimento de voz:", err);
-      recognition.stop();
     };
 
     recognition.onend = () => {
-      if (listening) recognition.start(); // mantém contínuo
+      if (listening) recognition.start(); // reinicia automaticamente
     };
 
     recognitionRef.current = recognition;
   }, []);
 
-  // inicia escuta contínua
   const start = () => {
     recognitionRef.current?.start();
     setListening(true);
   };
 
-  // para tudo
   const stop = () => {
     recognitionRef.current?.stop();
     setListening(false);
