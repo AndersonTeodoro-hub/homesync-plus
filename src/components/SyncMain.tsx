@@ -1,41 +1,54 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useWakeWord from "../hooks/useWakeWord";
+import useContinuousVoice from "../hooks/useContinuousVoice";
 import { SyncSounds } from "../hooks/useSyncSounds";
 
 export default function SyncMain() {
-  const [active, setActive] = useState(false);      // Sync acordada
-  const [listening, setListening] = useState(false); // ouvindo usuário
-  const [speaking, setSpeaking] = useState(false);   // respondendo
+  const [active, setActive] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("Diga 'Hey Sync' para começar.");
 
-  // Ativada pelo wake word "Hey Sync"
-  useWakeWord(() => {
-    setActive(true);
-    setListening(true);
-    SyncSounds.activate();
+  const { listening, start, stop } = useContinuousVoice(async (text) => {
+    console.log("Usuário disse:", text);
 
-    // listening ativo por 3 segundos
-    setTimeout(() => setListening(false), 3000);
-  });
-
-  // Exemplo de fala da Sync (você vai integrar isso depois com IA)
-  function simulateSyncResponse() {
-    setSpeaking(true);
     SyncSounds.message();
+    setSpeaking(true);
+    setStatusMessage(`Você disse: "${text}"`);
 
+    // Aqui você chama a IA para gerar resposta
+    // Exemplo simples:
     setTimeout(() => {
       setSpeaking(false);
+      setStatusMessage("Pronta.");
     }, 1200);
+  });
+
+  // Wake Word → ativa Sync + voz contínua
+  useWakeWord(() => {
+    if (!active) {
+      setActive(true);
+      SyncSounds.activate();
+      setStatusMessage("Estou ouvindo você...");
+      start(); // ← ativa voz contínua automaticamente
+    }
+  });
+
+  function sleepSync() {
+    stop();
+    SyncSounds.sleep();
+    setActive(false);
+    setSpeaking(false);
+    setStatusMessage("Modo sleep ativado. Diga 'Hey Sync' para acordar.");
   }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen text-white text-center px-6">
 
-      {/* AVATAR ANIMADO PREMIUM */}
+      {/* AVATAR ANIMADO */}
       <div
         className={`
           w-40 h-40 rounded-full overflow-hidden shadow-xl mb-6 
           transition-all duration-500 ease-out relative
-
           ${active ? "scale-110 ring-4 ring-blue-500" : "scale-100 ring-0"}
           ${listening ? "animate-sync-listen" : ""}
           ${speaking ? "animate-sync-talk" : ""}
@@ -48,25 +61,16 @@ export default function SyncMain() {
         />
       </div>
 
-      {/* ESTADOS VISUAIS */}
-      <h1 className="text-3xl font-semibold mb-4">
-        {active
-          ? listening
-            ? "Estou ouvindo você..."
-            : speaking
-            ? "Estou respondendo..."
-            : "Pronta!"
-          : "Olá, eu sou a Sync. Diga 'Hey Sync' para começar."}
-      </h1>
+      <h1 className="text-2xl font-semibold mb-4">{statusMessage}</h1>
 
-      {/* BOTÃO TEMPORÁRIO PARA TESTE */}
-      <button
-        onClick={simulateSyncResponse}
-        className="px-5 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-white shadow-lg transition"
-      >
-        Simular Resposta da Sync
-      </button>
-
+      {active && (
+        <button
+          onClick={sleepSync}
+          className="px-5 py-3 bg-red-600 hover:bg-red-700 rounded-xl text-white shadow-lg transition"
+        >
+          Sleep Sync
+        </button>
+      )}
     </div>
   );
 }
