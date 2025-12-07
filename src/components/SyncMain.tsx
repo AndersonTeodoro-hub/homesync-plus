@@ -4,49 +4,62 @@ import useContinuousVoice from "../hooks/useContinuousVoice";
 import { SyncSounds } from "../hooks/useSyncSounds";
 
 export default function SyncMain() {
-  const [active, setActive] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
-  const [thinking, setThinking] = useState(false);
+  const [active, setActive] = useState(false);       // Sync acordada
+  const [speaking, setSpeaking] = useState(false);   // falando
+  const [thinking, setThinking] = useState(false);   // processando IA
   const [statusMessage, setStatusMessage] = useState("Diga 'Hey Sync' para começar.");
 
+  // Voz contínua (JARVIS MODE)
   const { listening, start, stop } = useContinuousVoice(async (text) => {
     SyncSounds.message();
     setStatusMessage(`Você disse: "${text}"`);
     setThinking(true);
 
-    // Envia para API / IA
-    const response = await fetch("/api/sync", {
+    // ====== CHAMANDO A IA (GEMINI 3 FLASH) ======
+    const aiResponse = await fetch("/api/sync", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: text }),
     });
 
-    const data = await response.json();
+    const data = await aiResponse.json();
     const reply = data.reply;
 
-    // Visual de "falando"
+    // ====== PROCESSAMENTO RECEBIDO → FALA DA SYNC ======
     setThinking(false);
     setSpeaking(true);
-    SyncSounds.success();
     setStatusMessage(reply);
 
-    // A Sync para de falar após 1.2s
-    setTimeout(() => {
+    // ====== CHAMA A API DE VOZ (RACHEL) ======
+    const audioResponse = await fetch("/api/voice", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: reply }),
+    });
+
+    const audioBlob = await audioResponse.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    const audio = new Audio(audioUrl);
+    audio.play();
+
+    audio.onended = () => {
       setSpeaking(false);
       setStatusMessage("Pronta.");
-    }, 1200);
+    };
   });
 
-  // Wake Word → ativa a Sync
+  // ====== WAKE WORD (“HEY SYNC”) ======
   useWakeWord(() => {
     if (!active) {
       setActive(true);
       SyncSounds.activate();
       setStatusMessage("Estou ouvindo você...");
-      start(); // ← ativa voz contínua
+      start(); // ativa voz contínua automaticamente
     }
   });
 
+  // ====== MODO SLEEP ======
   function sleepSync() {
     stop();
     SyncSounds.sleep();
@@ -59,7 +72,7 @@ export default function SyncMain() {
   return (
     <div className="flex flex-col items-center justify-center h-screen text-white text-center px-6">
 
-      {/* Avatar Animado */}
+      {/* ===== AVATAR ANIMADO ===== */}
       <div
         className={`
           w-40 h-40 rounded-full overflow-hidden shadow-xl mb-6 
@@ -78,8 +91,10 @@ export default function SyncMain() {
         />
       </div>
 
+      {/* ===== STATUS ===== */}
       <h1 className="text-2xl font-semibold mb-4">{statusMessage}</h1>
 
+      {/* ===== BOTÃO SLEEP ===== */}
       {active && (
         <button
           onClick={sleepSync}
