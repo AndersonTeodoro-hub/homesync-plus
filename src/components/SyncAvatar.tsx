@@ -8,11 +8,9 @@ interface Props {
 }
 
 export default function SyncAvatar({ active, listening, speaking, thinking }: Props) {
-
-  // Referência da boca (lip sync)
+  
   const mouthRef = useRef<HTMLDivElement>(null);
 
-  // Piscadas automáticas
   useEffect(() => {
     const eyes = document.getElementById("sync-eyes");
 
@@ -29,7 +27,6 @@ export default function SyncAvatar({ active, listening, speaking, thinking }: Pr
     return () => clearInterval(interval);
   }, []);
 
-  // Lip-sync simples baseado no estado speaking
   useEffect(() => {
     const mouth = mouthRef.current;
     if (!mouth) return;
@@ -44,7 +41,7 @@ export default function SyncAvatar({ active, listening, speaking, thinking }: Pr
   return (
     <div
       className={`
-        relative w-48 h-48 rounded-full overflow-hidden shadow-xl 
+        relative w-48 h-48 rounded-full overflow-hidden shadow-xl
         transition-all duration-500 ease-out
 
         ${active ? "scale-110 ring-4 ring-blue-500" : "scale-100"}
@@ -54,14 +51,12 @@ export default function SyncAvatar({ active, listening, speaking, thinking }: Pr
       `}
     >
 
-      {/* === IMAGEM BASE DO AVATAR === */}
       <img
         src="/sync-avatar.png"
         className="w-full h-full object-cover"
         alt="Sync Avatar"
       />
 
-      {/* === OLHOS (ANIMAÇÃO DE PISCAR + MICRO MOVIMENTO) === */}
       <div
         id="sync-eyes"
         className="absolute top-[34%] left-[28%] w-[45%] h-[18%] pointer-events-none"
@@ -70,13 +65,11 @@ export default function SyncAvatar({ active, listening, speaking, thinking }: Pr
         <div className="eye right-eye"></div>
       </div>
 
-      {/* === BOCA (LIP SYNC) === */}
       <div
         ref={mouthRef}
         className="absolute bottom-[22%] left-[38%] w-[24%] h-[12%] mouth"
       ></div>
 
-      {/* === AURA HOLOGRÁFICA === */}
       <div
         className={`
           absolute inset-0 rounded-full pointer-events-none transition-all duration-500
@@ -84,7 +77,6 @@ export default function SyncAvatar({ active, listening, speaking, thinking }: Pr
           ${thinking ? "aura-thinking" : ""}
         `}
       ></div>
-
     </div>
   );
 }
