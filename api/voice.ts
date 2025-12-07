@@ -1,7 +1,81 @@
 import axios from "axios";
 
+// ===== PRESETS EMOCIONAIS OPTIMIZADOS PARA RACHEL =====
+
+const PRESET_CTA = {
+  stability: 0.38,
+  similarity_boost: 0.95,
+  style: 0.70,
+  use_speaker_boost: true,
+};
+
+const PRESET_EMPATHY = {
+  stability: 0.55,
+  similarity_boost: 0.85,
+  style: 0.20,
+  use_speaker_boost: false,
+};
+
+const PRESET_FUTURISTIC = {
+  stability: 0.45,
+  similarity_boost: 0.90,
+  style: 0.35,
+  use_speaker_boost: true,
+};
+
+const PRESET_TEACHER = {
+  stability: 0.50,
+  similarity_boost: 0.89,
+  style: 0.25,
+  use_speaker_boost: true,
+};
+
+// ===== SELETOR DE EMOÇÃO INTELIGENTE =====
+
+function selectPreset(text: string) {
+  const t = text.toLowerCase();
+
+  // Comandos fortes / CTA
+  if (
+    t.includes("faça isso") ||
+    t.includes("agora") ||
+    t.includes("atenção") ||
+    t.includes("urgente") ||
+    t.includes("continue") ||
+    t.includes("avançar")
+  ) {
+    return PRESET_CTA;
+  }
+
+  // Empatia / Calma
+  if (
+    t.includes("está tudo bem") ||
+    t.includes("calma") ||
+    t.includes("não se preocupe") ||
+    t.includes("eu entendo") ||
+    t.includes("respira")
+  ) {
+    return PRESET_EMPATHY;
+  }
+
+  // Futurista / Assistente avançada
+  if (
+    t.includes("ativando") ||
+    t.includes("processando") ||
+    t.includes("modo") ||
+    t.includes("sistema") ||
+    t.includes("sincronizado")
+  ) {
+    return PRESET_FUTURISTIC;
+  }
+
+  // Explicações
+  return PRESET_TEACHER;
+}
+
+// ===== API PRINCIPAL DE VOZ =====
+
 export default async function handler(req, res) {
-  // Permite apenas requisições POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método não permitido" });
   }
@@ -10,49 +84,39 @@ export default async function handler(req, res) {
     const { text } = req.body;
 
     if (!text || text.trim() === "") {
-      return res.status(400).json({ error: "Texto inválido" });
+      return res.status(400).json({ error: "Texto vazio" });
     }
 
     const apiKey = process.env.ELEVEN_API_KEY;
-    const voiceId = process.env.ELEVEN_VOICE_ID; // Rachel (voz recomendada)
+    const voiceId = process.env.ELEVEN_VOICE_ID;
 
     if (!apiKey || !voiceId) {
       return res.status(500).json({ error: "Variáveis de ambiente não configuradas" });
     }
 
-    // Configuração otimizada para Rachel
-    const body = {
-      text,
-      model_id: "eleven_multilingual_v2",  // melhor modelo atual
-      voice_settings: {
-        stability: 0.45,         // equilíbrio entre emoção e firmeza
-        similarity_boost: 0.92,  // maximiza fidelidade da voz Rachel
-        style: 0.40,             // entonação assistente inteligente
-        use_speaker_boost: true, // mais presença e volume natural
-      }
-    };
+    const emotionPreset = selectPreset(text);
 
-    const headers = {
-      "xi-api-key": apiKey,
-      "Content-Type": "application/json",
-    };
-
-    // Requisição à ElevenLabs
     const response = await axios.post(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-      body,
-      { headers, responseType: "arraybuffer" }
+      {
+        text,
+        model_id: "eleven_multilingual_v2",
+        voice_settings: emotionPreset,
+      },
+      {
+        headers: {
+          "xi-api-key": apiKey,
+          "Content-Type": "application/json",
+        },
+        responseType: "arraybuffer",
+      }
     );
 
-    // Configura o retorno como áudio MP3
     res.setHeader("Content-Type", "audio/mpeg");
-    res.status(200).send(response.data);
+    return res.status(200).send(response.data);
 
-  } catch (error) {
-    console.error("Erro na API de voz:", error?.response?.data || error);
-    res.status(500).json({
-      error: "Erro ao gerar áudio da voz Rachel",
-      details: error?.response?.data || error,
-    });
+  } catch (err) {
+    console.error("Erro ao sintetizar voz:", err);
+    return res.status(500).json({ error: "Erro interno ao gerar voz." });
   }
 }
