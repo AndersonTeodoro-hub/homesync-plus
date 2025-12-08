@@ -1,82 +1,78 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
-interface Props {
-  active: boolean;
-  listening: boolean;
-  speaking: boolean;
-  thinking: boolean;
+interface AvatarProps {
+    isSleeping: boolean;
+    voiceState: "idle" | "listening" | "speaking" | "thinking";
 }
 
-export default function SyncAvatar({ active, listening, speaking, thinking }: Props) {
-  
-  const mouthRef = useRef<HTMLDivElement>(null);
+export const Avatar: React.FC<AvatarProps> = ({ isSleeping, voiceState }) => {
+    const eyesRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const eyes = document.getElementById("sync-eyes");
+    // Blink animation
+    useEffect(() => {
+        const blink = () => {
+            if (!eyesRef.current) return;
+            eyesRef.current.classList.add("blink");
+            setTimeout(() => eyesRef.current?.classList.remove("blink"), 150);
+        };
 
-    function blink() {
-      if (!eyes) return;
-      eyes.classList.add("blink");
-      setTimeout(() => eyes.classList.remove("blink"), 150);
-    }
+        const interval = setInterval(() => {
+            if (Math.random() > 0.75) blink();
+        }, 2800);
 
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) blink();
-    }, 2700);
+        return () => clearInterval(interval);
+    }, []);
 
-    return () => clearInterval(interval);
-  }, []);
+    // Speaking pulse
+    const speaking = voiceState === "speaking";
 
-  useEffect(() => {
-    const mouth = mouthRef.current;
-    if (!mouth) return;
+    return (
+        <div className="relative w-[260px] h-[260px] flex items-center justify-center">
+            {/* Avatar Image */}
+            <img
+                src="/avatar.jpeg"
+                alt="Sync Human Avatar"
+                className={`rounded-2xl w-full h-full object-cover shadow-xl transition-transform duration-500
+                    ${speaking ? "scale-[1.03]" : ""}
+                    ${isSleeping ? "opacity-60" : "opacity-100"}
+                `}
+            />
 
-    if (speaking) {
-      mouth.classList.add("talking");
-    } else {
-      mouth.classList.remove("talking");
-    }
-  }, [speaking]);
+            {/* Eyes overlay for blink */}
+            <div
+                ref={eyesRef}
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    animation: isSleeping ? "sleep-breath 4s ease-in-out infinite" : undefined,
+                }}
+            />
 
-  return (
-    <div
-      className={`
-        relative w-48 h-48 rounded-full overflow-hidden shadow-xl
-        transition-all duration-500 ease-out
+            {/* Listening glow */}
+            {voiceState === "listening" && (
+                <div className="absolute inset-0 rounded-2xl border-4 border-blue-400/40 animate-pulse"></div>
+            )}
 
-        ${active ? "scale-110 ring-4 ring-blue-500" : "scale-100"}
-        ${listening ? "animate-sync-listen" : ""}
-        ${speaking ? "animate-sync-talk" : ""}
-        ${thinking ? "opacity-75 saturate-50" : ""}
-      `}
-    >
+            {/* Thinking pulse */}
+            {voiceState === "thinking" && (
+                <div className="absolute inset-0 rounded-2xl border-4 border-purple-400/40 animate-ping"></div>
+            )}
 
-      <img
-        src="/sync-avatar.png"
-        className="w-full h-full object-cover"
-        alt="Sync Avatar"
-      />
-
-      <div
-        id="sync-eyes"
-        className="absolute top-[34%] left-[28%] w-[45%] h-[18%] pointer-events-none"
-      >
-        <div className="eye left-eye"></div>
-        <div className="eye right-eye"></div>
-      </div>
-
-      <div
-        ref={mouthRef}
-        className="absolute bottom-[22%] left-[38%] w-[24%] h-[12%] mouth"
-      ></div>
-
-      <div
-        className={`
-          absolute inset-0 rounded-full pointer-events-none transition-all duration-500
-          ${speaking ? "aura-speaking" : ""}
-          ${thinking ? "aura-thinking" : ""}
-        `}
-      ></div>
-    </div>
-  );
-}
+            <style>
+                {`
+                    @keyframes sleep-breath {
+                        0%, 100% { transform: scale(1); filter: brightness(70%); }
+                        50% { transform: scale(0.97); filter: brightness(50%); }
+                    }
+                    .blink {
+                        animation: blinkAnim 0.15s ease-in-out;
+                    }
+                    @keyframes blinkAnim {
+                        0% { opacity: 1; }
+                        50% { opacity: 0; }
+                        100% { opacity: 1; }
+                    }
+                `}
+            </style>
+        </div>
+    );
+};
