@@ -1,36 +1,27 @@
+// /api/sync.ts
+
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const apiKey = process.env.GOOGLE_API_KEY;
+const genAI = new GoogleGenerativeAI(apiKey!);
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
-  }
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    try {
+        const { prompt } = req.body || {};
 
-  try {
-    const { message, history } = req.body;
+        if (!prompt) {
+            return res.status(400).json({ error: "Missing prompt" });
+        }
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-3-flash",
-    });
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    const prompt = `
-Você é a Sync, uma assistente de IA criada para conversar com naturalidade,
-responder rápido e agir como uma companhia inteligente.
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
 
-O usuário disse: "${message}"
-
-Responda de forma clara, amigável e curta, ideal para voz.
-`;
-
-    const result = await model.generateContent(prompt);
-
-    const responseText = result.response.text();
-
-    return res.status(200).json({ reply: responseText });
-
-  } catch (error) {
-    console.error("Erro na API:", error);
-    return res.status(500).json({ error: "Erro interno" });
-  }
+        return res.status(200).json({ reply: text });
+    } catch (err) {
+        console.error("SYNC API ERROR:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
 }
